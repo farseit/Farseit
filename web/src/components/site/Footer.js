@@ -13,8 +13,9 @@ const footerLinks = {
   Support: [
     { label: "Contact us", href: "#contact" },
     { label: "Login / Register", href: "/shop/start" },
-    { label: "Terms & conditions", href: "#" },
-    { label: "Privacy policy", href: "#" },
+    { label: "Terms & conditions", href: "/terms" },
+    { label: "Privacy policy", href: "/privacy" },
+    { label: "Data deletion", href: "/data-deletion" },
   ],
 };
 

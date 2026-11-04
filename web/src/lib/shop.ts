@@ -76,10 +76,12 @@ export async function facebookLogin(): Promise<string> {
         if (r?.authResponse?.accessToken) resolve(r.authResponse.accessToken);
         else reject(new Error('Facebook login complete hoyni'));
       },
-      {
-        scope: 'pages_show_list,pages_messaging,pages_manage_metadata,pages_read_engagement,business_management',
-        auth_type: 'rerequest',
-      },
+      process.env.NEXT_PUBLIC_FB_CONFIG_ID
+        ? { config_id: process.env.NEXT_PUBLIC_FB_CONFIG_ID }
+        : {
+            scope: 'pages_show_list,pages_messaging,pages_manage_metadata,pages_read_engagement,business_management',
+            auth_type: 'rerequest',
+          },
     );
   });
 }
