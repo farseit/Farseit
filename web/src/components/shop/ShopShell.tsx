@@ -1,4 +1,5 @@
 'use client';
+import { BrandLogo } from '@/components/BrandLogo';
 
 import clsx from 'clsx';
 import { Bot, CreditCard, HeartPulse, Inbox, KeyRound, LayoutDashboard, LogOut, Menu, Package, Plug, ShoppingBag, X } from 'lucide-react';
@@ -150,6 +151,9 @@ export function ShopShell({ children }: { children: React.ReactNode }) {
   const isActive = (n: NavItem) => (n.exact ? pathname === n.href : pathname.startsWith(n.href));
   const title = flat.find(isActive)?.label ?? L('ড্যাশবোর্ড', 'Dashboard');
 
+  // mobile-er niche-r 4ta shortcut (baki shob "Menu" te)
+  const tabs = flat.slice(0, 4);
+
   const doLogout = () => {
     logout();
     router.push('/shop/start');
@@ -162,22 +166,30 @@ export function ShopShell({ children }: { children: React.ReactNode }) {
 
   const sidebar = (
     <div className="flex h-full flex-col">
-      {/* brand */}
-      <Link href="/shop" className="flex h-16 shrink-0 items-center gap-3 border-b border-border px-5">
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary text-sm font-bold text-primary-foreground">
-          {initials(shop.name)}
-        </span>
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-bold leading-tight">{shop.name}</span>
-          <span className="block truncate text-xs text-muted">{acc?.planName ?? shop.plan}</span>
-        </span>
+      {/* brand (website Navbar-er moto) */}
+      <Link href="/shop" className="flex h-16 shrink-0 items-center gap-2.5 border-b border-border px-5">
+        <BrandLogo className="h-10 w-auto" />
+        <span className="rounded-md bg-primary-soft px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">AI</span>
       </Link>
 
+      {/* shop card (compact) */}
+      <div className="shrink-0 px-3 pt-3">
+        <div className="flex items-center gap-2.5 rounded-xl border border-border bg-surface p-2.5">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-ink font-display text-sm font-semibold text-white">
+            {initials(shop.name)}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold leading-tight">{shop.name}</span>
+            <span className="mt-0.5 block font-mono text-[10px] font-medium uppercase tracking-wider text-primary">{acc?.planName ?? shop.plan}</span>
+          </span>
+        </div>
+      </div>
+
       {/* nav */}
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5" aria-label="Main">
+      <nav className="sidebar-scroll min-h-0 flex-1 space-y-4 overflow-y-auto px-3 py-4" aria-label="Main">
         {groups.map((g) => (
           <div key={g.title}>
-            <p className="mb-1.5 px-3 text-xs font-medium text-muted">{g.title}</p>
+            <p className="mb-1 px-3 font-mono text-[10.5px] uppercase tracking-[0.16em] text-muted/70">{g.title}</p>
             <ul className="space-y-0.5">
               {g.items.map((n) => {
                 const active = isActive(n);
@@ -187,15 +199,15 @@ export function ShopShell({ children }: { children: React.ReactNode }) {
                       href={n.href}
                       aria-current={active ? 'page' : undefined}
                       className={clsx(
-                        'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
-                        active ? 'bg-primary-soft text-primary' : 'text-muted hover:bg-surface-2 hover:text-foreground',
+                        'relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-primary/50',
+                        active ? 'bg-primary-soft font-semibold text-primary' : 'font-medium text-muted hover:bg-surface-2 hover:text-foreground',
                       )}
                     >
-                      {active && <span className="absolute -left-3 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
+                      {active && <span className="absolute inset-y-2 left-0 w-[3px] rounded-r-full bg-signal" />}
                       <n.icon className="h-[18px] w-[18px] shrink-0" />
                       <span className="flex-1 truncate">{n.label}</span>
                       {!!n.badge && (
-                        <span className="min-w-[20px] rounded-full bg-danger px-1.5 text-center text-[11px] font-bold leading-5 text-white">
+                        <span className="min-w-[20px] rounded-full bg-signal px-1.5 text-center text-[11px] font-bold leading-5 text-white">
                           {n.badge > 99 ? '99+' : n.badge}
                         </span>
                       )}
@@ -210,15 +222,15 @@ export function ShopShell({ children }: { children: React.ReactNode }) {
 
       {/* usage meter */}
       {acc && (
-        <Link href="/shop/billing" className="mx-3 mb-3 block rounded-xl border border-border bg-surface p-3 transition-colors hover:bg-surface-2">
+        <Link href="/shop/billing" className="mx-3 mb-2 block shrink-0 rounded-xl border border-border bg-surface p-2.5 transition-colors hover:bg-surface-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-medium">{L('এই মাসের AI রিপ্লাই', 'AI replies this month')}</span>
             <span className="tabular-nums text-muted">
               {acc.used.toLocaleString()} / {acc.limit.toLocaleString()}
             </span>
           </div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
-            <div className={clsx('h-full rounded-full transition-[width] duration-500', meterTone)} style={{ width: `${pct}%` }} />
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-2">
+            <div className={clsx('h-full rounded-full transition-[width] duration-500', meterTone)} style={{ width: `${Math.max(pct, acc.used > 0 ? 3 : 0)}%` }} />
           </div>
         </Link>
       )}
@@ -249,7 +261,7 @@ export function ShopShell({ children }: { children: React.ReactNode }) {
         <button
           aria-label="Close menu"
           onClick={() => setOpen(false)}
-          className={clsx('absolute inset-0 bg-black/50 transition-opacity duration-200', open ? 'opacity-100' : 'opacity-0')}
+          className={clsx('absolute inset-0 bg-ink/60 transition-opacity duration-200', open ? 'opacity-100' : 'opacity-0')}
         />
         <aside
           className={clsx(
@@ -270,12 +282,15 @@ export function ShopShell({ children }: { children: React.ReactNode }) {
           <button onClick={() => setOpen(true)} className="btn btn-ghost -ml-2 h-10 w-10 !p-0 lg:hidden" aria-label="Open menu">
             <Menu className="h-5 w-5" />
           </button>
-          <h2 className="min-w-0 truncate text-base font-semibold">{title}</h2>
+          <h2 className="min-w-0 truncate font-display text-lg font-semibold tracking-tight">{title}</h2>
 
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
             <Link
               href="/shop"
-              className="mr-1 flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-surface-2"
+              className={clsx(
+                'mr-1 flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors',
+                botLive ? 'border-success/30 bg-success/10 text-success hover:bg-success/15' : 'border-border bg-background text-muted hover:bg-surface-2',
+              )}
               title={botLive ? L('বট চালু আছে', 'Bot is on') : L('বট বন্ধ আছে', 'Bot is off')}
             >
               <span className={clsx('h-2 w-2 rounded-full', botLive ? 'bg-success' : 'bg-muted/60')} />
@@ -283,13 +298,13 @@ export function ShopShell({ children }: { children: React.ReactNode }) {
             </Link>
             <LangToggle />
             <ThemeToggle />
-            <span className="ml-1 hidden h-9 w-9 place-items-center rounded-full bg-primary-soft text-xs font-bold text-primary sm:grid" title={user.name}>
+            <span className="ml-1 hidden h-9 w-9 place-items-center rounded-full bg-ink text-xs font-bold text-white sm:grid" title={user.name}>
               {initials(user.name)}
             </span>
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main className="mx-auto w-full max-w-6xl px-4 py-6 pb-28 sm:px-6 lg:px-8 lg:py-8 lg:pb-8">
           {shop.access && !shop.access.ok && (
             <Link href="/shop/billing" className="mb-6 block rounded-xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm font-semibold text-danger">
               {shop.access.reason === 'SUSPENDED'
@@ -308,6 +323,39 @@ export function ShopShell({ children }: { children: React.ReactNode }) {
           <Ctx.Provider value={{ shop, refresh, unread }}>{children}</Ctx.Provider>
         </main>
       </div>
+
+      {/* mobile bottom tab bar */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+        aria-label="Quick"
+      >
+        <ul className="mx-auto grid max-w-lg grid-cols-5">
+          {tabs.map((n) => {
+            const active = isActive(n);
+            return (
+              <li key={n.href}>
+                <Link
+                  href={n.href}
+                  aria-current={active ? 'page' : undefined}
+                  className={clsx('relative flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium', active ? 'text-primary' : 'text-muted')}
+                >
+                  <span className="relative">
+                    <n.icon className="h-5 w-5" />
+                    {!!n.badge && <span className="absolute -right-2 -top-1.5 min-w-[16px] rounded-full bg-signal px-1 text-center text-[10px] font-bold leading-4 text-white">{n.badge > 99 ? '99+' : n.badge}</span>}
+                  </span>
+                  <span className="max-w-full truncate px-1">{n.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+          <li>
+            <button onClick={() => setOpen(true)} className="flex w-full flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted">
+              <Menu className="h-5 w-5" />
+              <span>{L('মেনু', 'Menu')}</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }

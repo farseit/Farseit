@@ -114,7 +114,7 @@ function SaasInner() {
   const card = (label: string, v: string | number | undefined, hint?: string) => (
     <div className="card p-3.5">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-0.5 text-2xl font-extrabold">{v ?? '–'}</p>
+      <p className="mt-0.5 text-2xl font-display font-semibold">{v ?? '–'}</p>
       {hint && <p className="text-[11px] text-muted">{hint}</p>}
     </div>
   );
@@ -244,7 +244,7 @@ function Payments({ onChange }: { onChange: () => void }) {
             return (
               <div key={p.id} className="card p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-extrabold">{p.shop.name}</p>
+                  <p className="font-display font-semibold">{p.shop.name}</p>
                   <span className="badge bg-surface-2">{p.status}</span>
                 </div>
                 {o && (
@@ -475,13 +475,13 @@ function Shops({ onChange }: { onChange: () => void }) {
             return (
               <div key={s.id} className="card p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-extrabold">{s.name}</p>
+                  <p className="font-display font-semibold">{s.name}</p>
                   <div className="flex flex-wrap gap-1.5">
                     <span className="badge bg-primary/10 text-primary">{s.access.planName}</span>
                     {r && <span className="badge bg-danger/10 text-danger">{r}</span>}
-                    {s.counts.pages === 0 && <span className="badge bg-amber-100 text-amber-700">{L('পেজ নেই', 'No Page')}</span>}
+                    {s.counts.pages === 0 && <span className="badge bg-signal/15 text-signal">{L('পেজ নেই', 'No Page')}</span>}
                     {!s.botEnabled && <span className="badge bg-surface-2">{L('বট অফ', 'Bot off')}</span>}
-                    {!s.approved && <span className="badge bg-amber-100 text-amber-700">{L('অনুমোদন বাকি', 'Pending approval')}</span>}
+                    {!s.approved && <span className="badge bg-signal/15 text-signal">{L('অনুমোদন বাকি', 'Pending approval')}</span>}
                   </div>
                 </div>
 
@@ -522,8 +522,8 @@ function Shops({ onChange }: { onChange: () => void }) {
                 </div>
 
                 {!s.approved && (
-                  <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm">
-                    <span className="min-w-0 flex-1 text-amber-900">
+                  <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-signal/30 bg-signal/10 p-3 text-sm">
+                    <span className="min-w-0 flex-1 text-signal">
                       {L('এই শপ এখনো অনুমোদিত না। ফোনে কথা বলে কনফার্ম করুন।', 'This shop is not approved yet. Confirm by phone first.')}
                     </span>
                     <button className="btn btn-primary btn-sm" disabled={busy} onClick={() => approve(s.id)}>

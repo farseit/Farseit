@@ -29,12 +29,12 @@ const handoffActive = (c: Chat) => !!c.handoffUntil && new Date(c.handoffUntil) 
 const modeOf = (c: Chat): Mode => (!c.aiEnabled ? 'OFF' : handoffActive(c) ? 'HUMAN' : 'BOT');
 
 const AV = [
-  'bg-rose-100 text-rose-700',
-  'bg-sky-100 text-sky-700',
-  'bg-emerald-100 text-emerald-700',
-  'bg-amber-100 text-amber-700',
-  'bg-violet-100 text-violet-700',
-  'bg-teal-100 text-teal-700',
+  'bg-danger/10 text-danger',
+  'bg-primary-soft text-primary',
+  'bg-success/15 text-success',
+  'bg-signal/15 text-signal',
+  'bg-surface-2 text-foreground',
+  'bg-ink text-white',
 ];
 function Avatar({ name, size = 'h-11 w-11' }: { name: string; size?: string }) {
   const s = (name || '?').trim() || '?';
@@ -44,7 +44,7 @@ function Avatar({ name, size = 'h-11 w-11' }: { name: string; size?: string }) {
 }
 
 const orderTone: Record<string, string> = {
-  PENDING: 'bg-amber-100 text-amber-700',
+  PENDING: 'bg-signal/15 text-signal',
   CONFIRMED: 'bg-primary/10 text-primary',
   SHIPPED: 'bg-primary/10 text-primary',
   DELIVERED: 'bg-success/15 text-success',
@@ -250,7 +250,7 @@ function InboxInner() {
         <div className={clsx('card flex min-h-0 flex-col overflow-hidden', sel && 'hidden lg:flex')}>
           <div className="space-y-3 border-b border-border p-4">
             <div className="flex items-center justify-between">
-              <h1 className="text-xl font-extrabold tracking-tight">{L('ইনবক্স', 'Inbox')}</h1>
+              <h1 className="text-xl font-display font-semibold tracking-tight">{L('ইনবক্স', 'Inbox')}</h1>
               {unreadTotal > 0 && (
                 <span className="rounded-full bg-danger px-2.5 py-0.5 text-xs font-bold text-white">
                   {num(unreadTotal, lang)} {L('নতুন', 'new')}
@@ -315,7 +315,7 @@ function InboxInner() {
                       <div className="relative">
                         <Avatar name={who(c)} />
                         <span
-                          className={clsx('absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white text-white', m === 'BOT' ? 'bg-success' : m === 'HUMAN' ? 'bg-amber-400' : 'bg-muted')}
+                          className={clsx('absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background text-white', m === 'BOT' ? 'bg-success' : m === 'HUMAN' ? 'bg-signal' : 'bg-muted')}
                           title={m === 'BOT' ? L('বট উত্তর দিচ্ছে', 'Bot replying') : m === 'HUMAN' ? L('আপনি হ্যান্ডেল করছেন', 'You are handling') : L('বট বন্ধ', 'Bot off')}
                         >
                           {m === 'OFF' ? <BotOff className="h-2.5 w-2.5" /> : <Bot className="h-2.5 w-2.5" />}
@@ -323,7 +323,7 @@ function InboxInner() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                          <p className={clsx('truncate text-sm', c.unread ? 'font-extrabold' : 'font-semibold')}>{who(c)}</p>
+                          <p className={clsx('truncate text-sm', c.unread ? 'font-display font-semibold' : 'font-semibold')}>{who(c)}</p>
                           <span className={clsx('shrink-0 text-[11px]', c.unread ? 'font-bold text-primary' : 'text-muted')}>{listTime(c.lastMessageAt)}</span>
                         </div>
                         <div className="mt-0.5 flex items-center justify-between gap-2">
@@ -367,9 +367,9 @@ function InboxInner() {
                   </button>
                   <Avatar name={who(open.chat)} size="h-10 w-10" />
                   <div className="min-w-0">
-                    <p className="truncate font-extrabold leading-tight">{who(open.chat)}</p>
+                    <p className="truncate font-display font-semibold leading-tight">{who(open.chat)}</p>
                     <p className="flex items-center gap-1.5 text-xs text-muted">
-                      <span className={clsx('h-2 w-2 rounded-full', mode === 'BOT' ? 'bg-success' : mode === 'HUMAN' ? 'bg-amber-400' : 'bg-muted')} />
+                      <span className={clsx('h-2 w-2 rounded-full', mode === 'BOT' ? 'bg-success' : mode === 'HUMAN' ? 'bg-signal' : 'bg-muted')} />
                       {mode === 'BOT' ? L('বট উত্তর দিচ্ছে', 'Bot is replying') : mode === 'HUMAN' ? L('আপনি হ্যান্ডেল করছেন', 'You are handling this chat') : L('এই চ্যাটে বট বন্ধ', 'Bot is off for this chat')}
                     </p>
                   </div>
@@ -417,7 +417,7 @@ function InboxInner() {
                         )}
                         <div
                           className={clsx(
-                            'whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm leading-relaxed shadow-sm',
+                            'whitespace-pre-wrap break-words rounded-xl px-3.5 py-2 text-sm leading-relaxed shadow-sm',
                             r.m.role === 'USER' && 'rounded-tl-md bg-white text-foreground ring-1 ring-border dark:bg-surface-2',
                             r.m.role === 'BOT' && 'rounded-tr-md bg-primary/10',
                             r.m.role === 'ADMIN' && 'rounded-tr-md bg-primary text-primary-foreground',
@@ -435,7 +435,7 @@ function InboxInner() {
 
               {/* notices */}
               {windowClosed && (
-                <div className="flex items-start gap-2 border-t border-border bg-amber-50 px-4 py-2 text-xs text-amber-800">
+                <div className="flex items-start gap-2 border-t border-border bg-signal/10 px-4 py-2 text-xs text-signal">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{L('কাস্টমারের শেষ মেসেজের ২৪ ঘণ্টা পার হয়ে গেছে। Messenger এখন আপনার রিপ্লাই পৌঁছে দেবে না। ফোন করে যোগাযোগ করুন।', "It's been over 24 hours since the customer's last message. Messenger will not deliver your reply. Please contact them by phone.")}</span>
                 </div>

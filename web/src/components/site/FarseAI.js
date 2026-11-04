@@ -29,9 +29,7 @@ const features = [
 
 const plans = [
   { name: "Trial", price: "Free", note: "7 days", replies: "150 AI replies", pages: "1 Page", products: "30 products" },
-  { name: "Starter", price: "৳499", note: "per month", replies: "1,000 AI replies", pages: "1 Page", products: "150 products" },
-  { name: "Pro", price: "৳1,499", note: "per month", replies: "5,000 AI replies", pages: "3 Pages", products: "1,000 products", featured: true },
-  { name: "Business", price: "৳3,999", note: "per month", replies: "20,000 AI replies", pages: "10 Pages", products: "10,000 products" },
+  { name: "Pro", price: "৳999", note: "per month", replies: "5,000 AI replies", pages: "1 Page", products: "1,000 products", featured: true },
 ];
 
 export default function FarseAI() {
@@ -72,7 +70,7 @@ export default function FarseAI() {
 
         <div className="mt-16">
           <h3 className="font-display text-2xl font-semibold tracking-tight text-ink">Pricing</h3>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid max-w-2xl gap-6 sm:grid-cols-2">
             {plans.map((p) => (
               <div
                 key={p.name}

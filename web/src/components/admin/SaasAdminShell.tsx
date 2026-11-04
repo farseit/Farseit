@@ -1,4 +1,5 @@
 'use client';
+import { BrandLogo } from '@/components/BrandLogo';
 
 import { LogOut } from 'lucide-react';
 import Link from 'next/link';
@@ -34,8 +35,7 @@ export function SaasAdminShell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <Link href="/admin/saas" className="flex items-center gap-2 font-bold tracking-tight">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-extrabold text-primary-foreground">F</span>
-            Farse AI <span className="rounded-md bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary">{L('সুপার অ্যাডমিন', 'Super admin')}</span>
+            <BrandLogo className="h-9 w-auto" /> <span className="rounded-md bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary">{L('সুপার অ্যাডমিন', 'Super admin')}</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/" className="btn btn-ghost btn-sm hidden sm:inline-flex">

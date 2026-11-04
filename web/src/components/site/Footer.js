@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/BrandLogo";
 const footerLinks = {
   Company: [
     { label: "About us", href: "#about" },
@@ -25,12 +26,7 @@ export default function Footer() {
       <div className="container-x grid gap-10 py-16 md:grid-cols-12">
         <div className="md:col-span-4">
           <a href="#home" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-ink">
-              <span className="h-2 w-2 rounded-full bg-signal" />
-            </span>
-            <span className="font-display text-lg font-semibold tracking-tight">
-              Farse<span className="text-brand">IT</span>
-            </span>
+            <BrandLogo className="h-14 w-auto" />
           </a>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate">
             Robust, sustainable web platforms for e-commerce, education, and

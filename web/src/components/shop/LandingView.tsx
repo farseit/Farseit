@@ -1,4 +1,5 @@
 'use client';
+import { BrandLogo } from '@/components/BrandLogo';
 
 import clsx from 'clsx';
 import { AnimatePresence, LayoutGroup, MotionConfig, animate, motion, useReducedMotion } from 'framer-motion';
@@ -479,9 +480,7 @@ export function LandingView({ data }: { data: LandingData }) {
 
           <p className="mt-12 text-center text-xs text-muted">
             {L('চালিত', 'Powered by')}{' '}
-            <Link href="/shop/start" className="font-semibold hover:underline">
-              Farse AI
-            </Link>
+            <Link href="/shop/start" className="inline-flex items-center gap-1 align-middle font-semibold hover:underline"><BrandLogo className="h-6 w-auto" /><span className="font-display">AI</span></Link>
           </p>
         </main>
 

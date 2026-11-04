@@ -129,7 +129,7 @@ export default function AiKeyPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-[28px]">{L('আপনার Gemini AI key', 'Your Gemini AI key')}</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-[30px]">{L('আপনার Gemini AI key', 'Your Gemini AI key')}</h1>
         <p className="mt-1 text-sm text-muted">
           {L('বট আপনার নিজের Google Gemini key দিয়ে কাস্টমারকে রিপ্লাই দেয়, তাই AI-এর খরচ আপনার Google অ্যাকাউন্টে যায়।', 'Your bot replies using your own Google Gemini key, so the AI cost goes to your Google account.')}
         </p>
@@ -149,7 +149,7 @@ export default function AiKeyPage() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="font-semibold">{L('key-র অবস্থা', 'Key status')}</h2>
+                      <h2 className="font-display text-base font-semibold">{L('key-র অবস্থা', 'Key status')}</h2>
                       <span className={clsx('badge', meta.badge)}>{meta.label}</span>
                     </div>
                     <p className="mt-1 text-sm text-muted">{meta.text}</p>
@@ -199,7 +199,7 @@ export default function AiKeyPage() {
           {/* add / replace */}
           {owner ? (
             <form onSubmit={save} className="card p-5 sm:p-6">
-              <h2 className="font-semibold">{configured ? L('key বদলান', 'Replace key') : L('key যোগ করুন', 'Add your key')}</h2>
+              <h2 className="font-display text-base font-semibold">{configured ? L('key বদলান', 'Replace key') : L('key যোগ করুন', 'Add your key')}</h2>
               <label htmlFor="aikey" className="mb-1.5 mt-4 block text-sm font-medium">
                 {L('Gemini API key', 'Gemini API key')}
               </label>
@@ -254,7 +254,7 @@ export default function AiKeyPage() {
         {/* right column: nতুন হলে guide আগে দেখায় */}
         <div className={clsx('space-y-6', !configured && 'max-lg:order-first')}>
           <section className="card p-5">
-            <h2 className="font-semibold">{L('key কীভাবে পাবেন', 'How to get your key')}</h2>
+            <h2 className="font-display text-base font-semibold">{L('key কীভাবে পাবেন', 'How to get your key')}</h2>
             <ol className="mt-4 space-y-4">
               {steps.map((s, i) => (
                 <li key={i} className="flex gap-3">
@@ -270,7 +270,7 @@ export default function AiKeyPage() {
           </section>
 
           <section className="card p-5">
-            <h2 className="font-semibold">{L('জেনে রাখুন', 'Good to know')}</h2>
+            <h2 className="font-display text-base font-semibold">{L('জেনে রাখুন', 'Good to know')}</h2>
             <ul className="mt-3 space-y-3 text-sm text-muted">
               <li>{L('খরচ আপনার Google অ্যাকাউন্টে যায়, Farse AI-তে নয়।', 'Costs are billed to your Google account, not to Farse AI.')}</li>
               <li>{L('ফ্রি key-তে Google প্রতিদিনের লিমিট রাখে, যা বদলাতে পারে। লিমিট শেষ হলে বট থামবে ও আপনি নোটিফিকেশন পাবেন।', 'Google’s free keys have usage limits that can change. If you hit one, the bot pauses and you get a notification.')}</li>

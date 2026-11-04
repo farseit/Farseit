@@ -56,7 +56,7 @@ function Section({ icon: Icon, title, desc, action, children }: { icon: LucideIc
           <Icon className="h-[18px] w-[18px]" />
         </span>
         <div>
-          <h2 className="flex items-center gap-2 font-semibold leading-tight">
+          <h2 className="flex items-center gap-2 font-display font-semibold leading-tight">
             {title}
             {action}
           </h2>
@@ -101,7 +101,7 @@ function RulesGuide({ onAdd, canAdd, onClose }: { onAdd: (t: string) => void; ca
   ];
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-surface-2 p-4 text-sm">
+    <div className="space-y-4 rounded-xl border border-border bg-surface-2 p-4 text-sm">
       <div className="flex items-center justify-between gap-3">
         <div role="group" aria-label="Language" className="inline-flex rounded-full border border-border bg-background p-0.5 text-xs font-medium">
           {(
@@ -127,7 +127,7 @@ function RulesGuide({ onAdd, canAdd, onClose }: { onAdd: (t: string) => void; ca
       </div>
 
       <div>
-        <h3 className="font-semibold">{T('কীভাবে নিয়ম লিখবেন', 'How to write your rules')}</h3>
+        <h3 className="font-display text-base font-semibold">{T('কীভাবে নিয়ম লিখবেন', 'How to write your rules')}</h3>
         <p className="mt-0.5 text-xs text-muted">{T('আপনি যা লিখবেন, বট কাস্টমারকে সেই অনুযায়ী উত্তর দেবে।', 'Whatever you write here, the bot will follow when it answers customers.')}</p>
       </div>
 
@@ -203,7 +203,7 @@ function Field({ label, hint, aside, htmlFor, children }: { label: string; hint?
 }
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={clsx('animate-pulse rounded-2xl bg-surface-2', className)} />;
+  return <div className={clsx('animate-pulse rounded-xl bg-surface-2', className)} />;
 }
 
 /* ---------- live preview ---------- */
@@ -238,7 +238,7 @@ function Preview({ f, L }: { f: Form; L: (bn: string, en: string) => string }) {
     <div className={clsx('flex', mine ? 'justify-start' : 'justify-end')}>
       <p
         className={clsx(
-          'max-w-[85%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed',
+          'max-w-[85%] rounded-xl px-3.5 py-2 text-sm leading-relaxed',
           mine ? 'rounded-bl-md bg-surface-2' : 'rounded-br-md bg-primary text-primary-foreground',
         )}
       >
@@ -368,7 +368,7 @@ export default function BotSettings() {
   return (
     <div className={clsx('space-y-6', owner && dirty && 'pb-20')}>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-[28px]">{L('আপনার বট কেমন হবে', 'How your bot talks and sells')}</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-[30px]">{L('আপনার বট কেমন হবে', 'How your bot talks and sells')}</h1>
         <p className="mt-1 text-sm text-muted">{L('সেভ করা সেটিংস নতুন রিপ্লাইয়ে কাজ করবে।', 'Saved settings are used for new replies.')}</p>
       </div>
 

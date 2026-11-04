@@ -1,4 +1,5 @@
 'use client';
+import { BrandLogo } from '@/components/BrandLogo';
 
 import { AnimatePresence, MotionConfig, motion, useReducedMotion, type Variants } from 'framer-motion';
 import { ArrowLeft, Bell, Check, Eye, EyeOff, Loader2, Lock, Mail, Phone, Send, Store, User } from 'lucide-react';
@@ -24,14 +25,9 @@ const highlight = 'bg-gradient-to-r from-signal to-amber-400 bg-clip-text text-t
 /** Same mark as the FarseIT logo: dark square + orange dot */
 function Logo({ dark = false }: { dark?: boolean }) {
   return (
-    <>
-      <span className={`flex h-9 w-9 items-center justify-center rounded-lg ring-1 ${dark ? 'bg-white/10 ring-white/20' : 'bg-ink ring-ink'}`}>
-        <span className="h-2.5 w-2.5 rounded-full bg-signal shadow-[0_0_12px_rgba(255,106,26,0.9)]" />
-      </span>
-      <span className="text-lg font-bold tracking-tight">
-        Farse<span className={dark ? 'text-signal' : 'text-brand'}>AI</span>
-      </span>
-    </>
+    <span className={dark ? 'rounded-lg bg-white px-2.5 py-1.5' : ''}>
+      <BrandLogo className="h-10 w-auto" />
+    </span>
   );
 }
 
@@ -78,7 +74,7 @@ function Msg({ me, children }: { me?: boolean; children: React.ReactNode }) {
       className={`flex ${me ? 'justify-start' : 'justify-end'}`}
     >
       <div
-        className={`max-w-[86%] rounded-2xl px-3 py-2 text-[12.5px] leading-relaxed ${
+        className={`max-w-[86%] rounded-xl px-3 py-2 text-[12.5px] leading-relaxed ${
           me ? 'rounded-bl-md bg-white/10 text-white' : 'rounded-br-md bg-brand text-white shadow-lg shadow-brand/30'
         }`}
       >
@@ -91,7 +87,7 @@ function Msg({ me, children }: { me?: boolean; children: React.ReactNode }) {
 function Typing() {
   return (
     <motion.div layout="position" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: 0.15 } }} className="flex justify-end">
-      <div className="flex items-center gap-1 rounded-2xl rounded-br-md bg-brand px-3.5 py-3">
+      <div className="flex items-center gap-1 rounded-xl rounded-br-md bg-brand px-3.5 py-3">
         {[0, 1, 2].map((i) => (
           <span key={i} className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: `${i * 0.15}s` }} />
         ))}
@@ -191,7 +187,7 @@ function PhoneDemo({ L }: { L: (bn: string, en: string) => string }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.2 } }}
             transition={{ type: 'spring', stiffness: 320, damping: 24, delay: 0.7 }}
-            className="absolute -right-3 top-14 flex items-center gap-2.5 rounded-2xl bg-white px-3 py-2.5 text-ink shadow-2xl xl:-right-8"
+            className="absolute -right-3 top-14 flex items-center gap-2.5 rounded-xl bg-white px-3 py-2.5 text-ink shadow-2xl xl:-right-8"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-signal text-white">
               <Bell className="h-4 w-4" />
@@ -324,7 +320,7 @@ function StartForm() {
                   <span className="h-1.5 w-1.5 rounded-full bg-signal" />
                   {L('ফেসবুক পেজের জন্য AI সেলস অ্যাসিস্ট্যান্ট', 'AI sales assistant for Facebook Pages')}
                 </span>
-                <h1 className="mt-5 max-w-md text-4xl font-extrabold leading-[1.2] tracking-tight xl:text-[2.6rem]">{headline}</h1>
+                <h1 className="mt-5 max-w-md text-4xl font-display font-semibold leading-[1.2] tracking-tight xl:text-[2.6rem]">{headline}</h1>
                 <p className="mt-4 max-w-sm text-base leading-relaxed text-white/70">{sub}</p>
               </motion.div>
               <motion.div variants={rise} className="px-2 xl:w-[310px]">
@@ -366,7 +362,7 @@ function StartForm() {
 
           <motion.div variants={stagger} initial="hidden" animate="show" className="mx-auto flex w-full max-w-[440px] flex-1 flex-col justify-center py-4 lg:max-w-[540px]">
             <motion.div variants={rise} className="mb-6 lg:hidden">
-              <h1 className="text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">{headline}</h1>
+              <h1 className="text-2xl font-display font-semibold leading-tight tracking-tight sm:text-3xl">{headline}</h1>
               <p className="mt-2 text-sm leading-relaxed text-muted">{sub}</p>
             </motion.div>
 
@@ -401,7 +397,7 @@ function StartForm() {
               <div className="mt-5 min-h-[3.75rem]">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div key={mode} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}>
-                    <h2 className="text-xl font-bold tracking-tight">{reg ? L('আপনার শপ রেজিস্টার করুন', 'Register your shop') : L('আবার স্বাগতম', 'Welcome back')}</h2>
+                    <h2 className="font-display text-xl font-semibold tracking-tight">{reg ? L('আপনার শপ রেজিস্টার করুন', 'Register your shop') : L('আবার স্বাগতম', 'Welcome back')}</h2>
                     <p className="mt-1 text-sm text-muted">{reg ? L('১ মিনিটে অ্যাকাউন্ট খুলে পেজ কানেক্ট করুন।', 'Create an account and connect your Page in a minute.') : L('আপনার শপে লগইন করুন।', 'Log in to your shop.')}</p>
                   </motion.div>
                 </AnimatePresence>

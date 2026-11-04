@@ -33,14 +33,14 @@ type Order = {
 const PAGE = 20;
 
 const tone: Record<Status, string> = {
-  PENDING: 'bg-amber-100 text-amber-700',
+  PENDING: 'bg-signal/15 text-signal',
   CONFIRMED: 'bg-primary/10 text-primary',
   SHIPPED: 'bg-primary/10 text-primary',
   DELIVERED: 'bg-success/15 text-success',
   CANCELLED: 'bg-danger/10 text-danger',
 };
 const bar: Record<Status, string> = {
-  PENDING: 'bg-amber-400',
+  PENDING: 'bg-signal',
   CONFIRMED: 'bg-primary',
   SHIPPED: 'bg-primary',
   DELIVERED: 'bg-success',
@@ -177,7 +177,7 @@ export default function ShopOrders() {
       {/* header */}
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">{L('অর্ডার', 'Orders')}</h1>
+          <h1 className="text-2xl font-display font-semibold tracking-tight">{L('অর্ডার', 'Orders')}</h1>
           <p className="mt-0.5 text-sm text-muted">
             {L('স্ট্যাটাস বদলালে কাস্টমারকে Messenger-এ জানানো হয় (শেষ মেসেজের ২৪ ঘণ্টার মধ্যে)।', 'Customers get a Messenger update when you change the status (within 24h of their last message).')}
           </p>
@@ -230,7 +230,7 @@ export default function ShopOrders() {
       {shown === null && !error ? (
         <div className="space-y-4">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-56 animate-pulse rounded-2xl bg-surface-2" />
+            <div key={i} className="h-56 animate-pulse rounded-xl bg-surface-2" />
           ))}
         </div>
       ) : shown && shown.length === 0 ? (
@@ -260,9 +260,9 @@ export default function ShopOrders() {
                     {/* top row */}
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-extrabold text-primary">#{o.number}</div>
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-display font-semibold text-primary">#{o.number}</div>
                         <div className="min-w-0">
-                          <p className="truncate text-base font-extrabold">{o.customerName}</p>
+                          <p className="truncate text-base font-display font-semibold">{o.customerName}</p>
                           <p className="text-xs text-muted" title={dateFmt(o.createdAt, lang, true)}>
                             {ago(o.createdAt, lang)} · {dateFmt(o.createdAt, lang, true)}
                           </p>
@@ -273,7 +273,7 @@ export default function ShopOrders() {
                           <span className={clsx('h-1.5 w-1.5 rounded-full', bar[o.status])} />
                           {label[o.status]}
                         </span>
-                        <p className="text-xl font-extrabold tracking-tight">{money(o.total, lang)}</p>
+                        <p className="text-xl font-display font-semibold tracking-tight">{money(o.total, lang)}</p>
                       </div>
                     </div>
 
@@ -321,7 +321,7 @@ export default function ShopOrders() {
                           </div>
                         </div>
                         {o.note && (
-                          <p className="mt-2 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs text-amber-800">
+                          <p className="mt-2 rounded-lg bg-signal/10 px-2.5 py-1.5 text-xs text-signal">
                             <b>{L('নোট', 'Note')}:</b> {o.note}
                           </p>
                         )}
@@ -369,7 +369,7 @@ export default function ShopOrders() {
                             <span>{L('ডেলিভারি', 'Delivery')}</span>
                             <span>{money(o.deliveryCharge, lang)}</span>
                           </div>
-                          <div className="flex justify-between pt-1 text-base font-extrabold">
+                          <div className="flex justify-between pt-1 text-base font-display font-semibold">
                             <span>{L('মোট', 'Total')}</span>
                             <span>{money(o.total, lang)}</span>
                           </div>

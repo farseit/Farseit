@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/BrandLogo";
 import Link from "next/link";
 
 export const CONTACT = {
@@ -12,12 +13,7 @@ export default function LegalPage({ title, updated, children }) {
       <header className="border-b border-line bg-paper">
         <div className="container-x flex h-20 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-ink">
-              <span className="h-2 w-2 rounded-full bg-signal" />
-            </span>
-            <span className="font-display text-lg font-semibold tracking-tight">
-              Farse<span className="text-brand">IT</span>
-            </span>
+            <BrandLogo className="h-14 w-auto" />
           </Link>
           <Link href="/shop/start" className="f-btn-accent">
             Try Farse AI free

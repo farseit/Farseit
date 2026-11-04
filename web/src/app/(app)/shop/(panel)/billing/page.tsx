@@ -28,7 +28,7 @@ export default function ShopBilling() {
   const [b, setB] = useState<Billing | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [f, setF] = useState({ plan: 'STARTER', months: 1, method: 'BKASH', senderNumber: '', trxId: '' });
+  const [f, setF] = useState({ plan: 'PRO', months: 1, method: 'BKASH', senderNumber: '', trxId: '' });
 
   const load = useCallback(() => {
     gql<{ shopBilling: Billing }>(`query { shopBilling }`)
@@ -73,7 +73,7 @@ export default function ShopBilling() {
         <>
           <div className="card p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xl font-extrabold">{a.planName}</p>
+              <p className="text-xl font-display font-semibold">{a.planName}</p>
               {a.daysLeft !== null && (
                 <span className={clsx('badge', a.daysLeft > 3 ? 'bg-success/15 text-success' : 'bg-danger/10 text-danger')}>
                   {a.daysLeft >= 0 ? L(`আর ${a.daysLeft} দিন`, `${a.daysLeft} days left`) : L('মেয়াদ শেষ', 'Expired')}
@@ -103,8 +103,8 @@ export default function ShopBilling() {
                     onClick={() => setF({ ...f, plan: p.id })}
                     className={clsx('rounded-xl border p-3 text-left transition-colors', f.plan === p.id ? 'border-primary bg-primary/5' : 'border-border hover:bg-surface-2')}
                   >
-                    <p className="font-extrabold">{p.name}</p>
-                    <p className="text-lg font-extrabold text-primary">{money(p.price, lang)}<span className="text-xs font-semibold text-muted">/{L('মাস', 'mo')}</span></p>
+                    <p className="font-display font-semibold">{p.name}</p>
+                    <p className="text-lg font-display font-semibold text-primary">{money(p.price, lang)}<span className="text-xs font-semibold text-muted">/{L('মাস', 'mo')}</span></p>
                     <p className="mt-1 text-xs text-muted">{L(`${num(p.replies, lang)}টি AI রিপ্লাই, ${p.pages}টি পেজ`, `${num(p.replies, lang)} AI replies, ${p.pages} Page(s)`)}</p>
                   </button>
                 ))}
@@ -136,7 +136,7 @@ export default function ShopBilling() {
                 </p>
                 {payNo ? (
                   <p className="mt-1">
-                    {L('এই নম্বরে', 'Send money to')} <span className="font-extrabold">{payNo}</span> ({f.method === 'NAGAD' ? 'Nagad' : 'bKash'} {L('সেন্ড মানি করুন', 'Send Money')}), {L('তারপর নিচে নিজের নম্বর ও TrxID দিন।', 'then enter your number and TrxID below.')}
+                    {L('এই নম্বরে', 'Send money to')} <span className="font-display font-semibold">{payNo}</span> ({f.method === 'NAGAD' ? 'Nagad' : 'bKash'} {L('সেন্ড মানি করুন', 'Send Money')}), {L('তারপর নিচে নিজের নম্বর ও TrxID দিন।', 'then enter your number and TrxID below.')}
                   </p>
                 ) : (
                   <p className="mt-1 text-danger">{L('পেমেন্ট নম্বর এখনো সেট করা হয়নি। সাপোর্টে যোগাযোগ করুন।', 'Payment number is not set yet. Please contact support.')}</p>

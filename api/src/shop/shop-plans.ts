@@ -6,10 +6,10 @@ export type PlanId = 'TRIAL' | 'STARTER' | 'PRO' | 'BUSINESS';
 export const PLANS: Record<PlanId, { name: string; price: number; replies: number; pages: number; products: number }> = {
   TRIAL: { name: 'Trial', price: 0, replies: 150, pages: 1, products: 30 },
   STARTER: { name: 'Starter', price: 499, replies: 1000, pages: 1, products: 150 },
-  PRO: { name: 'Pro', price: 1499, replies: 5000, pages: 3, products: 1000 },
+  PRO: { name: 'Pro', price: 999, replies: 5000, pages: 1, products: 1000 },
   BUSINESS: { name: 'Business', price: 3999, replies: 20000, pages: 10, products: 10000 },
 };
-export const PAID_PLANS: PlanId[] = ['STARTER', 'PRO', 'BUSINESS'];
+export const PAID_PLANS: PlanId[] = ['PRO'];
 export const GRACE_DAYS = 3; // paid plan-er meyad shesh hole ei kodin bot cholbe
 
 /** Dhaka (UTC+6) onujayi mas, jemon "2026-10" */

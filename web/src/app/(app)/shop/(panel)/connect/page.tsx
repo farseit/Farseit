@@ -54,7 +54,7 @@ function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
       <button aria-label="Close" className="absolute inset-0 bg-black/50" onClick={() => !busy && onCancel()} />
-      <div className="relative w-full max-w-md rounded-2xl border border-border bg-background p-6 shadow-xl">
+      <div className="relative w-full max-w-md rounded-xl border border-border bg-background p-6 shadow-xl">
         <span className="grid h-11 w-11 place-items-center rounded-full bg-danger/10 text-danger">
           <AlertTriangle className="h-5 w-5" />
         </span>
@@ -159,7 +159,7 @@ export default function ConnectPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-[28px]">{L('আপনার ফেসবুক পেজ কানেক্ট করুন', 'Connect your Facebook Page')}</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-[30px]">{L('আপনার ফেসবুক পেজ কানেক্ট করুন', 'Connect your Facebook Page')}</h1>
         <p className="mt-1 text-sm text-muted">{L('এখানে কানেক্ট করা পেজগুলোর মেসেজে বট রিপ্লাই দেবে।', 'The bot replies to messages sent to the Pages you connect here.')}</p>
       </div>
 
@@ -168,7 +168,7 @@ export default function ConnectPage() {
           {/* connected pages */}
           <section className="card overflow-hidden">
             <div className="flex items-center justify-between gap-3 px-5 py-4 sm:px-6">
-              <h2 className="font-semibold">{L('কানেক্ট করা পেজ', 'Connected Pages')}</h2>
+              <h2 className="font-display text-base font-semibold">{L('কানেক্ট করা পেজ', 'Connected Pages')}</h2>
               {typeof limit === 'number' && (
                 <span className="badge bg-surface-2 text-muted">
                   {shop.pages.length} / {limit} {L('পেজ', 'Pages')}
@@ -244,7 +244,7 @@ export default function ConnectPage() {
           {/* connect */}
           {owner ? (
             <section className="card p-5 sm:p-6">
-              <h2 className="font-semibold">{L('নতুন পেজ কানেক্ট করুন', 'Connect a Page')}</h2>
+              <h2 className="font-display text-base font-semibold">{L('নতুন পেজ কানেক্ট করুন', 'Connect a Page')}</h2>
               <p className="mt-1 text-sm text-muted">
                 {L('ফেসবুকে লগইন করে যে পেজের অ্যাডমিন আপনি সেটি বেছে নিন।', 'Log in with Facebook and pick a Page you manage.')}
               </p>
@@ -337,7 +337,7 @@ export default function ConnectPage() {
         {/* right column */}
         <div className="space-y-6">
           <section className="card p-5">
-            <h2 className="font-semibold">{L('কীভাবে কাজ করে', 'How it works')}</h2>
+            <h2 className="font-display text-base font-semibold">{L('কীভাবে কাজ করে', 'How it works')}</h2>
             <ol className="mt-4 space-y-4">
               {steps.map((s, i) => (
                 <li key={s.title} className="flex gap-3">
@@ -356,7 +356,7 @@ export default function ConnectPage() {
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary-soft text-primary">
                 <Bell className="h-[18px] w-[18px]" />
               </span>
-              <h2 className="font-semibold">{L('নোটিফিকেশন', 'Notifications')}</h2>
+              <h2 className="font-display text-base font-semibold">{L('নোটিফিকেশন', 'Notifications')}</h2>
             </div>
             <p className="mb-4 mt-3 text-sm text-muted">
               {L('নতুন অর্ডার ও কাস্টমারের মেসেজ এলে এই ডিভাইসে নোটিফিকেশন পাবেন।', 'Get a notification on this device for new orders and customer messages.')}

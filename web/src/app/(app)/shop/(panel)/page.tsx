@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { Check, ChevronRight, Inbox, Package, ShoppingBag, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, Inbox, Package, ShoppingBag, Sparkles } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -43,19 +43,22 @@ function Stat({
   return (
     <Link
       href={href}
-      className="card group flex flex-col gap-4 p-4 transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:p-5"
+      className={clsx(
+        'card group relative flex flex-col gap-4 p-4 transition-all hover:-translate-y-0.5 hover:shadow-[0_20px_45px_-25px_rgb(11_14_20_/_0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:p-5',
+        alert && 'border-signal/40',
+      )}
     >
       <div className="flex items-center justify-between">
-        <span className={clsx('grid h-9 w-9 place-items-center rounded-xl', alert ? 'bg-warning/15 text-warning' : 'bg-primary-soft text-primary')}>
-          <Icon className="h-[18px] w-[18px]" />
+        <span className={clsx('grid h-10 w-10 place-items-center rounded-lg', alert ? 'bg-signal/15 text-signal' : 'bg-primary-soft text-primary')}>
+          <Icon className="h-5 w-5" />
         </span>
-        <ChevronRight className="h-4 w-4 text-muted opacity-0 transition-opacity group-hover:opacity-100" />
+        <ArrowRight className="h-4 w-4 -translate-x-1 text-muted opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
       </div>
       <div>
         <p className="text-sm text-muted">{label}</p>
-        <div className="mt-1 text-3xl font-bold leading-none tabular-nums">{value}</div>
+        <div className="mt-1 font-display text-3xl font-semibold leading-none tabular-nums">{value}</div>
       </div>
-      <p className="text-xs text-muted">{hint}</p>
+      <p className={clsx('text-xs', alert ? 'font-medium text-signal' : 'text-muted')}>{hint}</p>
     </Link>
   );
 }
@@ -71,10 +74,11 @@ function Meter({ pct, tone = 'bg-primary' }: { pct: number; tone?: string }) {
 function CardHead({ title, href, linkText }: { title: string; href?: string; linkText?: string }) {
   return (
     <div className="flex items-center justify-between px-5 py-4">
-      <h2 className="font-semibold">{title}</h2>
+      <h2 className="font-display text-base font-semibold">{title}</h2>
       {href && (
-        <Link href={href} className="text-sm font-semibold text-primary hover:underline">
+        <Link href={href} className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
           {linkText}
+          <ChevronRight className="h-4 w-4" />
         </Link>
       )}
     </div>
@@ -131,7 +135,6 @@ export default function ShopOverview() {
       gql<{ shopChats: { items: Chat[]; unreadTotal: number } }>(`query { shopChats(take: 5) }`),
       gql<{ shopBotSettings: { botName: string; greeting: string | null; rules: string | null } }>(`query { shopBotSettings }`),
       gql<{ shopAiKey: { configured: boolean; status: string } }>(`query { shopAiKey }`),
-          gql<{ shopAiKey: { configured: boolean; status: string } }>(`query { shopAiKey }`),
     ]).then(([p, pend, rec, ch, bs, ak]) => {
       const k = ok(ak)?.shopAiKey;
       const b = ok(bs)?.shopBotSettings;
@@ -172,7 +175,7 @@ export default function ShopOverview() {
 
   const status = (s: string) => {
     const map: Record<string, { bn: string; en: string; cls: string }> = {
-      PENDING: { bn: 'পেন্ডিং', en: 'Pending', cls: 'bg-warning/15 text-warning' },
+      PENDING: { bn: 'পেন্ডিং', en: 'Pending', cls: 'bg-signal/15 text-signal' },
       CONFIRMED: { bn: 'কনফার্ম', en: 'Confirmed', cls: 'bg-primary-soft text-primary' },
       SHIPPED: { bn: 'শিপড', en: 'Shipped', cls: 'bg-primary-soft text-primary' },
       DELIVERED: { bn: 'ডেলিভার্ড', en: 'Delivered', cls: 'bg-success/15 text-success' },
@@ -222,6 +225,7 @@ export default function ShopOverview() {
   ];
   const doneCount = steps.filter((s) => s.done).length;
   const currentIdx = steps.findIndex((s) => !s.done);
+  const next = currentIdx >= 0 ? steps[currentIdx] : null;
   const allDone = doneCount === steps.length;
 
   /* plan numbers */
@@ -235,7 +239,8 @@ export default function ShopOverview() {
       {/* page heading */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-[28px]">
+          <span className="font-mono text-xs uppercase tracking-[0.2em] text-primary">{L('ড্যাশবোর্ড', 'Dashboard')}</span>
+          <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-[30px]">
             {firstName ? L(`স্বাগতম, ${firstName}`, `Welcome back, ${firstName}`) : L('স্বাগতম', 'Welcome back')}
           </h1>
           <p className="mt-1 text-sm text-muted">{L(`${shop.name}-এর আজকের অবস্থা`, `Here is how ${shop.name} is doing today.`)}</p>
@@ -243,13 +248,47 @@ export default function ShopOverview() {
         {days !== null && (
           <Link
             href="/shop/billing"
-            className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/15 px-3.5 py-1.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/25"
+            className="inline-flex items-center gap-2 rounded-full border border-signal/30 bg-signal/10 px-3.5 py-1.5 text-sm font-semibold text-signal transition-colors hover:bg-signal/20"
           >
             {L(`ট্রায়াল: আর ${days.toLocaleString(loc)} দিন`, `Trial: ${days} days left`)}
             <ChevronRight className="h-4 w-4" />
           </Link>
         )}
       </div>
+
+      {/* next step: ekta-i kaj, spasto */}
+      {next && (
+        <section className="relative overflow-hidden rounded-xl border border-white/10 bg-ink p-5 text-white sm:p-6">
+          <div className="absolute inset-0 bg-grid-pattern bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_70%_90%_at_100%_0%,black,transparent)] invert" />
+          <div className="relative flex flex-wrap items-center justify-between gap-4">
+            <div className="min-w-0 max-w-xl">
+              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-signal">
+                {L(`পরের ধাপ · ${(doneCount + 1).toLocaleString(loc)}/${steps.length.toLocaleString(loc)}`, `Next step · ${doneCount + 1} of ${steps.length}`)}
+              </span>
+              <h2 className="mt-2 font-display text-xl font-semibold leading-snug sm:text-2xl">{next.label}</h2>
+              <p className="mt-1.5 text-sm text-white/70">{next.desc}</p>
+            </div>
+            {'href' in next && next.href ? (
+              <Link href={next.href} className="btn btn-accent shrink-0">
+                {next.cta}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              isOwner && (
+                <button onClick={next.action} disabled={busy} className="btn btn-accent shrink-0">
+                  {next.cta}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              )
+            )}
+          </div>
+          <div className="relative mt-5 flex gap-1.5" aria-hidden="true">
+            {steps.map((s, i) => (
+              <span key={i} className={clsx('h-1 flex-1 rounded-full', s.done ? 'bg-signal' : 'bg-white/15')} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* stats */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
@@ -259,7 +298,7 @@ export default function ShopOverview() {
           alert={(data?.unread ?? 0) > 0}
           label={L('নতুন মেসেজ', 'Unread messages')}
           value={loading ? <Skeleton className="h-8 w-12" /> : data!.unread.toLocaleString(loc)}
-          hint={!loading && data!.unread > 0 ? L('উত্তরের অপেক্ষায়', 'Waiting for a reply') : L('সব দেখা হয়েছে', 'All caught up')}
+          hint={loading ? '\u00A0' : data!.unread > 0 ? L('উত্তরের অপেক্ষায়', 'Waiting for a reply') : L('সব দেখা হয়েছে', 'All caught up')}
         />
         <Stat
           href="/shop/orders"
@@ -267,14 +306,14 @@ export default function ShopOverview() {
           alert={(data?.pending ?? 0) > 0}
           label={L('পেন্ডিং অর্ডার', 'Pending orders')}
           value={loading ? <Skeleton className="h-8 w-12" /> : data!.pending.toLocaleString(loc)}
-          hint={!loading && data!.pending > 0 ? L('কনফার্মের অপেক্ষায়', 'Waiting to be confirmed') : L('কোনো অর্ডার বাকি নেই', 'No orders waiting')}
+          hint={loading ? '\u00A0' : data!.pending > 0 ? L('কনফার্মের অপেক্ষায়', 'Waiting to be confirmed') : L('কোনো অর্ডার বাকি নেই', 'No orders waiting')}
         />
         <Stat
           href="/shop/products"
           icon={Package}
           label={L('প্রোডাক্ট', 'Products')}
           value={loading ? <Skeleton className="h-8 w-12" /> : data!.products.toLocaleString(loc)}
-          hint={!loading && data!.products === 0 ? L('প্রথম প্রোডাক্ট যোগ করুন', 'Add your first product') : L('বটের কাছে আছে', 'Available to the bot')}
+          hint={loading ? '\u00A0' : data!.products === 0 ? L('প্রথম প্রোডাক্ট যোগ করুন', 'Add your first product') : L('বটের কাছে আছে', 'Available to the bot')}
         />
         <Stat
           href="/shop/billing"
@@ -284,7 +323,7 @@ export default function ShopOverview() {
           value={
             <>
               {(acc?.used ?? 0).toLocaleString(loc)}
-              <span className="ml-1 text-base font-medium text-muted">/ {(acc?.limit ?? 0).toLocaleString(loc)}</span>
+              <span className="ml-1 font-sans text-base font-medium text-muted">/ {(acc?.limit ?? 0).toLocaleString(loc)}</span>
             </>
           }
           hint={L('এই মাসে ব্যবহার হয়েছে', 'Used this month')}
@@ -296,14 +335,14 @@ export default function ShopOverview() {
         <div className="space-y-6 lg:col-span-2">
           {/* bot switch */}
           <section className="card flex items-center gap-4 p-5">
-            <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
-              <span className={clsx('absolute right-0 top-0 h-3 w-3 rounded-full ring-2 ring-background', shop.botEnabled ? 'bg-success' : 'bg-muted/60')}>
+            <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
+              <span className={clsx('absolute -right-1 -top-1 h-3 w-3 rounded-full ring-2 ring-background', shop.botEnabled ? 'bg-success' : 'bg-muted/60')}>
                 {shop.botEnabled && <span className="absolute inset-0 rounded-full bg-success motion-safe:animate-ping" />}
               </span>
               <Sparkles className="h-5 w-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <h2 className="font-semibold">{L('অটোমেটিক বট', 'Automatic bot')}</h2>
+              <h2 className="font-display text-base font-semibold">{L('অটোমেটিক বট', 'Automatic bot')}</h2>
               <p className="text-sm text-muted">
                 {shop.botEnabled
                   ? L('চালু আছে, কাস্টমারের মেসেজে নিজে রিপ্লাই দিচ্ছে।', 'On. Replying to customers automatically.')
@@ -334,11 +373,11 @@ export default function ShopOverview() {
           {/* setup */}
           {allDone ? (
             <section className="card flex items-center gap-4 p-5">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-success/15 text-success">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-success/15 text-success">
                 <Check className="h-5 w-5" />
               </span>
               <div>
-                <h2 className="font-semibold">{L('সেটআপ সম্পূর্ণ', 'Your shop is set up')}</h2>
+                <h2 className="font-display text-base font-semibold">{L('সেটআপ সম্পূর্ণ', 'Your shop is set up')}</h2>
                 <p className="text-sm text-muted">{L('বট কাজ করছে। নতুন অর্ডার ও মেসেজ এখানে দেখা যাবে।', 'The bot is live. New orders and messages show up here.')}</p>
               </div>
             </section>
@@ -346,7 +385,7 @@ export default function ShopOverview() {
             <section className="card overflow-hidden">
               <div className="px-5 pb-4 pt-5">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-semibold">{L('শপ সেটআপ', 'Set up your shop')}</h2>
+                  <h2 className="font-display text-base font-semibold">{L('শপ সেটআপ', 'Set up your shop')}</h2>
                   <span className="text-sm tabular-nums text-muted">
                     {L(`${doneCount.toLocaleString(loc)}/${steps.length.toLocaleString(loc)} সম্পন্ন`, `${doneCount} of ${steps.length} done`)}
                   </span>
@@ -360,11 +399,18 @@ export default function ShopOverview() {
                   const current = i === currentIdx;
                   const rowCls = clsx('flex items-center gap-4 px-5 py-4', current && 'bg-primary-soft/50');
                   const icon = s.done ? (
-                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-success text-white">
-                      <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-success text-white">
+                      <Check className="h-4 w-4" strokeWidth={3} />
                     </span>
                   ) : (
-                    <span className={clsx('h-6 w-6 shrink-0 rounded-full border-2', current ? 'border-primary' : 'border-border')} />
+                    <span
+                      className={clsx(
+                        'grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 font-mono text-xs font-semibold',
+                        current ? 'border-primary text-primary' : 'border-border text-muted',
+                      )}
+                    >
+                      {(i + 1).toLocaleString(loc)}
+                    </span>
                   );
                   const text = (
                     <span className="min-w-0 flex-1">
@@ -379,9 +425,7 @@ export default function ShopOverview() {
                         <Link href={s.href} className={clsx(rowCls, 'transition-colors hover:bg-surface')}>
                           {icon}
                           {text}
-                          {!s.done && (
-                            <span className={clsx('btn btn-sm shrink-0', current ? 'btn-primary' : 'btn-outline')}>{s.cta}</span>
-                          )}
+                          {!s.done && <span className={clsx('btn btn-sm shrink-0', current ? 'btn-primary' : 'btn-outline')}>{s.cta}</span>}
                         </Link>
                       </li>
                     );
@@ -417,7 +461,7 @@ export default function ShopOverview() {
                 {data!.orders.map((o) => (
                   <li key={o.id}>
                     <Link href="/shop/orders" className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-surface">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-2 text-muted">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-muted">
                         <ShoppingBag className="h-4 w-4" />
                       </span>
                       <span className="min-w-0 flex-1">
@@ -443,8 +487,10 @@ export default function ShopOverview() {
           {/* plan */}
           <section className="card p-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold">{L('আপনার প্ল্যান', 'Your plan')}</h2>
-              <span className="badge bg-primary-soft text-primary">{acc?.planName ?? shop.plan}</span>
+              <h2 className="font-display text-base font-semibold">{L('আপনার প্ল্যান', 'Your plan')}</h2>
+              <span className="rounded-full bg-primary-soft px-2.5 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wider text-primary">
+                {acc?.planName ?? shop.plan}
+              </span>
             </div>
             {daysLeft !== null && (
               <p className="mt-2 text-sm text-muted">
@@ -460,9 +506,9 @@ export default function ShopOverview() {
                   {(acc?.used ?? 0).toLocaleString(loc)} / {(acc?.limit ?? 0).toLocaleString(loc)}
                 </span>
               </div>
-              <Meter pct={pct} tone={tone} />
+              <Meter pct={Math.max(pct, (acc?.used ?? 0) > 0 ? 3 : 0)} tone={tone} />
             </div>
-            <Link href="/shop/billing" className={clsx('btn mt-5 w-full', days !== null || pct >= 80 ? 'btn-primary' : 'btn-outline')}>
+            <Link href="/shop/billing" className={clsx('btn mt-5 w-full', days !== null || pct >= 80 ? 'btn-accent' : 'btn-outline')}>
               {days !== null || pct >= 80 ? L('প্ল্যান আপগ্রেড করুন', 'Upgrade plan') : L('প্ল্যান ম্যানেজ করুন', 'Manage plan')}
             </Link>
           </section>
@@ -492,7 +538,7 @@ export default function ShopOverview() {
                       <span className="flex shrink-0 flex-col items-end gap-1">
                         <span className="text-xs text-muted">{ago(c.lastMessageAt)}</span>
                         {c.unread > 0 && (
-                          <span className="min-w-[18px] rounded-full bg-danger px-1.5 text-center text-[11px] font-bold leading-[18px] text-white">{c.unread}</span>
+                          <span className="min-w-[18px] rounded-full bg-signal px-1.5 text-center text-[11px] font-bold leading-[18px] text-white">{c.unread}</span>
                         )}
                       </span>
                     </Link>

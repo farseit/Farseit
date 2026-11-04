@@ -1,4 +1,5 @@
 "use client";
+import { BrandLogo } from "@/components/BrandLogo";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -19,12 +20,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b border-line bg-paper/80 backdrop-blur">
       <div className="container-x flex h-20 items-center justify-between">
         <a href="#home" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-ink">
-            <span className="h-2 w-2 rounded-full bg-signal" />
-          </span>
-          <span className="font-display text-lg font-semibold tracking-tight">
-            Farse<span className="text-brand">IT</span>
-          </span>
+          <BrandLogo className="h-14 w-auto" />
         </a>
 
         <nav className="hidden items-center gap-8 md:flex">

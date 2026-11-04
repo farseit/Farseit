@@ -176,7 +176,7 @@ export default function HealthPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-[28px]">{L('সমস্যা ও স্বাস্থ্য', 'Health and issues')}</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-[30px]">{L('সমস্যা ও স্বাস্থ্য', 'Health and issues')}</h1>
           <p className="mt-1 text-sm text-muted">{L('আপনার বট ঠিকমতো চলছে কিনা এবং কোনো সমস্যা হলে কী করবেন, সব এখানে।', 'See whether your bot is running properly, and what to do if something goes wrong.')}</p>
         </div>
         <div className="flex gap-2">
@@ -194,7 +194,7 @@ export default function HealthPage() {
 
       {/* summary */}
       {!data ? (
-        busy && <div className="h-24 animate-pulse rounded-2xl bg-surface-2" />
+        busy && <div className="h-24 animate-pulse rounded-xl bg-surface-2" />
       ) : (
         <section className={clsx('card flex items-center gap-4 p-5', TINT[top])}>
           <span className={clsx('grid h-11 w-11 shrink-0 place-items-center rounded-full bg-background', TONE[top])}>
@@ -221,7 +221,7 @@ export default function HealthPage() {
       {data && (
         <section className="card overflow-hidden">
           <div className="px-5 py-4 sm:px-6">
-            <h2 className="font-semibold">{L('অবস্থা যাচাই', 'Status checks')}</h2>
+            <h2 className="font-display text-base font-semibold">{L('অবস্থা যাচাই', 'Status checks')}</h2>
           </div>
           <ul className="divide-y divide-border border-t border-border">
             {data.checks.map((c, idx) => {
@@ -262,7 +262,7 @@ export default function HealthPage() {
       {data && (
         <section id="issues" className="card scroll-mt-24 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 sm:px-6">
-            <h2 className="font-semibold">{L('সাম্প্রতিক সমস্যার তালিকা', 'Recent problems')}</h2>
+            <h2 className="font-display text-base font-semibold">{L('সাম্প্রতিক সমস্যার তালিকা', 'Recent problems')}</h2>
             <span className="text-sm text-muted">{L('শেষ ৭ দিন', 'Last 7 days')}</span>
           </div>
           {!open.length && !closed.length ? (
@@ -313,7 +313,7 @@ export default function HealthPage() {
 
       {/* help */}
       <section className="card p-5 sm:p-6">
-        <h2 className="font-semibold">{L('সমস্যা না মিটলে', 'Still stuck?')}</h2>
+        <h2 className="font-display text-base font-semibold">{L('সমস্যা না মিটলে', 'Still stuck?')}</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted">
           <li>{L('“সম্পূর্ণ চেক চালান” চাপুন। এতে Facebook-এর সংযোগ ও মেসেজ ডেলিভারি লাইভ যাচাই হবে।', 'Press “Run full check” to test the Facebook connection and message delivery live.')}</li>
           <li>{L('কাস্টমারের শেষ মেসেজের ২৪ ঘণ্টা পর Messenger-এ রিপ্লাই যায় না। এটি Facebook-এর নিয়ম, সমস্যা নয়।', 'Messenger does not allow replies 24 hours after the customer’s last message. This is a Facebook rule, not a fault.')}</li>

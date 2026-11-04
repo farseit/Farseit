@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { AlertTriangle, Copy, ExternalLink, EyeOff, ImagePlus, Link2, Loader2, Package, Pencil, Plus, Search, Star, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Copy, ExternalLink, EyeOff, ImagePlus, LayoutGrid, Link2, List, Loader2, Package, Pencil, Plus, Search, Star, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { ErrorBox } from '@/components/admin/ui';
@@ -37,6 +37,8 @@ type Draft = {
 };
 
 type Filter = 'ALL' | 'ACTIVE' | 'HIDDEN' | 'LOW' | 'OUT';
+type Sort = 'DEFAULT' | 'NAME' | 'PRICE_ASC' | 'PRICE_DESC' | 'STOCK_ASC';
+type View = 'LIST' | 'GRID';
 
 const LOW = 3; // ei ba er kom stock hole "Low stock"
 const empty: Draft = { name: '', description: '', price: '', minPrice: '', stock: '10', trackStock: true, active: true, images: [], options: [] };
@@ -106,6 +108,22 @@ export default function ShopProducts() {
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<Filter>('ALL');
+  const [sort, setSort] = useState<Sort>('DEFAULT');
+  const [view, setView] = useState<View>('LIST');
+
+  // list / grid pochondo mone rakhe
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem('farse_products_view');
+      if (v === 'LIST' || v === 'GRID') setView(v);
+    } catch {}
+  }, []);
+  const changeView = (v: View) => {
+    setView(v);
+    try {
+      localStorage.setItem('farse_products_view', v);
+    } catch {}
+  };
 
   const load = useCallback(() => {
     gql<{ shopProducts: Product[] }>(`query { shopProducts }`)
@@ -194,7 +212,7 @@ export default function ShopProducts() {
   const shown = useMemo(() => {
     if (!items) return null;
     const t = q.trim().toLowerCase();
-    return items.filter((p) => {
+    const list = items.filter((p) => {
       if (filter === 'ACTIVE' && !p.active) return false;
       if (filter === 'HIDDEN' && p.active) return false;
       if (filter === 'LOW' && stockState(p) !== 'LOW') return false;
@@ -202,7 +220,13 @@ export default function ShopProducts() {
       if (!t) return true;
       return `${p.name} ${p.description || ''}`.toLowerCase().includes(t);
     });
-  }, [items, q, filter]);
+    const s = [...list];
+    if (sort === 'NAME') s.sort((a, b) => a.name.localeCompare(b.name));
+    if (sort === 'PRICE_ASC') s.sort((a, b) => a.price - b.price);
+    if (sort === 'PRICE_DESC') s.sort((a, b) => b.price - a.price);
+    if (sort === 'STOCK_ASC') s.sort((a, b) => (a.trackStock ? a.stock : Infinity) - (b.trackStock ? b.stock : Infinity));
+    return s;
+  }, [items, q, filter, sort]);
 
   const filters: { id: Filter; label: string; n: number }[] = [
     { id: 'ALL', label: L('সব', 'All'), n: stats.total },
@@ -212,12 +236,94 @@ export default function ShopProducts() {
     { id: 'OUT', label: L('স্টক শেষ', 'Out of stock'), n: stats.out },
   ];
 
-  const statCard = (label: string, value: number, tone?: string) => (
-    <div className="card p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</p>
-      <p className={clsx('mt-1 text-2xl font-extrabold', tone)}>{num(value, lang)}</p>
+  const sorts: { id: Sort; label: string }[] = [
+    { id: 'DEFAULT', label: L('ডিফল্ট', 'Default order') },
+    { id: 'NAME', label: L('নাম (A-Z)', 'Name (A-Z)') },
+    { id: 'PRICE_ASC', label: L('দাম: কম থেকে বেশি', 'Price: low to high') },
+    { id: 'PRICE_DESC', label: L('দাম: বেশি থেকে কম', 'Price: high to low') },
+    { id: 'STOCK_ASC', label: L('স্টক: কম আগে', 'Stock: lowest first') },
+  ];
+
+  const stat = (label: string, value: number, tone?: string) => (
+    <div className="bg-background px-5 py-4">
+      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">{label}</p>
+      <p className={clsx('mt-1 font-display text-2xl font-semibold tabular-nums', tone)}>{num(value, lang)}</p>
     </div>
   );
+
+  const openEdit = (p: Product) => {
+    setError(null);
+    setDraft(toDraft(p));
+  };
+
+  const copyLink = (p: Product) => {
+    const url = `${window.location.origin}/p/${p.code}`;
+    navigator.clipboard.writeText(url).then(
+      () => toast.success(L('লিংক কপি হয়েছে', 'Link copied')),
+      () => toast.error(url),
+    );
+  };
+
+  const iconBtn = 'btn btn-ghost h-8 w-8 shrink-0 !p-0';
+
+  const actions = (p: Product) => (
+    <div className="flex items-center">
+      {p.code && (
+        <>
+          <button className={iconBtn} aria-label="Copy landing page link" title={L('ল্যান্ডিং পেজের লিংক কপি করুন', 'Copy landing page link')} onClick={() => copyLink(p)}>
+            <Link2 className="h-4 w-4" />
+          </button>
+          <a className={iconBtn} href={`/p/${p.code}`} target="_blank" rel="noopener noreferrer" aria-label="Open landing page" title={L('ল্যান্ডিং পেজ দেখুন', 'Open landing page')}>
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        </>
+      )}
+      <button className={iconBtn} onClick={() => duplicate(p)} aria-label="Duplicate" title={L('কপি করুন', 'Duplicate')}>
+        <Copy className="h-4 w-4" />
+      </button>
+      <button className={iconBtn} onClick={() => openEdit(p)} aria-label="Edit" title={L('এডিট', 'Edit')}>
+        <Pencil className="h-4 w-4" />
+      </button>
+      <button className={clsx(iconBtn, 'text-danger')} onClick={() => remove(p)} aria-label="Delete" title={L('ডিলিট', 'Delete')}>
+        <Trash2 className="h-4 w-4" />
+      </button>
+    </div>
+  );
+
+  const stockCell = (p: Product) => {
+    const st = stockState(p);
+    if (st === 'NA') return <span className="text-sm text-muted">{L('হিসাব বন্ধ', 'Not tracked')}</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className="text-sm font-semibold tabular-nums">{num(p.stock, lang)}</span>
+        {st === 'OUT' && <span className="badge bg-danger/10 text-danger">{L('শেষ', 'Out')}</span>}
+        {st === 'LOW' && <span className="badge bg-signal/15 text-signal">{L('কম', 'Low')}</span>}
+      </span>
+    );
+  };
+
+  const priceCell = (p: Product) => {
+    const hasMin = p.minPrice != null && p.minPrice < p.price;
+    return (
+      <span className="block">
+        <span className="block font-display text-base font-semibold tabular-nums">{money(p.price, lang)}</span>
+        {hasMin && (
+          <span className="block text-[11px] text-muted">
+            {L('সর্বনিম্ন', 'Lowest')} {money(p.minPrice as number, lang)}
+          </span>
+        )}
+      </span>
+    );
+  };
+
+  const statusCell = (p: Product) => (
+    <label className="flex items-center gap-2 text-xs font-semibold text-muted">
+      <Switch on={p.active} onChange={() => toggleActive(p)} disabled={busyId === p.id} />
+      <span className="hidden sm:inline">{p.active ? L('বট দেখাচ্ছে', 'Visible') : L('লুকানো', 'Hidden')}</span>
+    </label>
+  );
+
+  const COLS = 'md:grid-cols-[minmax(0,1fr)_120px_120px_150px_auto]';
 
   const minP = draft && draft.minPrice.trim() !== '' ? Number(draft.minPrice) : null;
   const priceN = draft ? Number(draft.price) : 0;
@@ -227,8 +333,9 @@ export default function ShopProducts() {
       {/* header */}
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">{L('প্রোডাক্ট', 'Products')}</h1>
-          <p className="mt-0.5 text-sm text-muted">{L('বট শুধু এখানে যোগ করা প্রোডাক্টই বিক্রি করবে।', 'The bot only sells the products you add here.')}</p>
+          <span className="font-mono text-xs uppercase tracking-[0.2em] text-primary">{L('ওয়ার্কস্পেস', 'Workspace')}</span>
+          <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-[30px]">{L('প্রোডাক্ট', 'Products')}</h1>
+          <p className="mt-1 text-sm text-muted">{L('বট শুধু এখানে যোগ করা প্রোডাক্টই বিক্রি করবে।', 'The bot only sells the products you add here.')}</p>
         </div>
         <button
           className="btn btn-primary gap-1.5"
@@ -243,50 +350,83 @@ export default function ShopProducts() {
 
       <ErrorBox message={draft ? null : error} />
 
-      {/* stats */}
-      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {statCard(L('মোট প্রোডাক্ট', 'Total products'), stats.total)}
-        {statCard(L('বট দেখাচ্ছে', 'Visible to bot'), stats.active, 'text-success')}
-        {statCard(L('লুকানো', 'Hidden'), stats.hidden)}
-        {statCard(L('স্টক নিয়ে সতর্কতা', 'Stock alerts'), stats.low + stats.out, stats.low + stats.out > 0 ? 'text-danger' : undefined)}
+      {/* stats strip */}
+      <div className="card mb-5 grid grid-cols-2 gap-px overflow-hidden bg-border md:grid-cols-4">
+        {stat(L('মোট প্রোডাক্ট', 'Total products'), stats.total)}
+        {stat(L('বট দেখাচ্ছে', 'Visible to bot'), stats.active, 'text-success')}
+        {stat(L('লুকানো', 'Hidden'), stats.hidden)}
+        {stat(L('স্টক নিয়ে সতর্কতা', 'Stock alerts'), stats.low + stats.out, stats.low + stats.out > 0 ? 'text-signal' : undefined)}
       </div>
 
       {/* toolbar */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 lg:pb-0">
           {filters.map((f) => (
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
               className={clsx(
-                'flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors',
-                filter === f.id ? 'border-primary bg-primary text-white shadow-sm' : 'border-border bg-surface-2 text-muted hover:border-primary/40 hover:text-primary',
+                'flex shrink-0 items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors',
+                filter === f.id ? 'border-primary bg-primary text-white shadow-sm' : 'border-border bg-background text-muted hover:border-primary/40 hover:text-primary',
               )}
             >
               {f.label}
-              <span className={clsx('min-w-5 rounded-full px-1.5 text-center text-[11px] font-bold leading-5', filter === f.id ? 'bg-white/25 text-white' : 'bg-border/60')}>{num(f.n, lang)}</span>
+              <span className={clsx('min-w-5 rounded-md px-1.5 text-center text-[11px] font-bold leading-5', filter === f.id ? 'bg-white/25 text-white' : 'bg-surface-2')}>{num(f.n, lang)}</span>
             </button>
           ))}
         </div>
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-          <input className="input !pl-9" placeholder={L('প্রোডাক্ট খুঁজুন', 'Search products')} value={q} onChange={(e) => setQ(e.target.value)} />
+
+        <div className="flex items-center gap-2">
+          <div className="relative min-w-0 flex-1 lg:w-60 lg:flex-none">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+            <input className="input !py-2 !pl-9" placeholder={L('প্রোডাক্ট খুঁজুন', 'Search products')} value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+          <select className="input !w-auto !py-2" value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label={L('সাজান', 'Sort')}>
+            {sorts.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+          <div className="flex shrink-0 rounded-lg border border-border bg-background p-0.5" role="group" aria-label="View">
+            {([
+              ['LIST', List, L('তালিকা', 'List')],
+              ['GRID', LayoutGrid, L('গ্রিড', 'Grid')],
+            ] as const).map(([id, Icon, label]) => (
+              <button
+                key={id}
+                onClick={() => changeView(id)}
+                aria-pressed={view === id}
+                title={label}
+                aria-label={label}
+                className={clsx('grid h-8 w-8 place-items-center rounded-md transition-colors', view === id ? 'bg-primary-soft text-primary' : 'text-muted hover:text-foreground')}
+              >
+                <Icon className="h-4 w-4" />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* grid */}
+      {/* products */}
       {shown === null && !error ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="h-80 animate-pulse rounded-2xl bg-surface-2" />
+        <div className="card divide-y divide-border overflow-hidden">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3">
+              <div className="h-14 w-14 animate-pulse rounded-lg bg-surface-2" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 w-1/3 animate-pulse rounded bg-surface-2" />
+                <div className="h-3 w-1/2 animate-pulse rounded bg-surface-2" />
+              </div>
+            </div>
           ))}
         </div>
       ) : shown && shown.length === 0 ? (
         <div className="card flex flex-col items-center gap-3 px-6 py-16 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-soft text-primary">
             <Package className="h-8 w-8" />
           </div>
-          <p className="text-base font-bold">{items && items.length ? L('কোনো প্রোডাক্ট মেলেনি', 'No products match') : L('এখনো কোনো প্রোডাক্ট নেই', 'No products yet')}</p>
+          <p className="font-display text-base font-semibold">{items && items.length ? L('কোনো প্রোডাক্ট মেলেনি', 'No products match') : L('এখনো কোনো প্রোডাক্ট নেই', 'No products yet')}</p>
           <p className="max-w-sm text-sm text-muted">
             {items && items.length ? L('ফিল্টার বা সার্চ বদলে দেখুন।', 'Try another filter or search.') : L('আপনার প্রথম প্রোডাক্ট যোগ করুন, তারপর বট চালু করলে সে নিজে কাস্টমারকে দেখাবে ও অর্ডার নেবে।', 'Add your first product, then turn the bot on and it will show it to customers and take orders.')}
           </p>
@@ -296,107 +436,86 @@ export default function ShopProducts() {
             </button>
           )}
         </div>
+      ) : view === 'LIST' ? (
+        /* ---------- list (table) view ---------- */
+        <div className="card overflow-hidden">
+          <div className={clsx('hidden items-center gap-4 border-b border-border bg-surface px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-muted md:grid', COLS)}>
+            <span>{L('প্রোডাক্ট', 'Product')}</span>
+            <span>{L('দাম', 'Price')}</span>
+            <span>{L('স্টক', 'Stock')}</span>
+            <span>{L('বট', 'Bot')}</span>
+            <span className="w-[160px]" />
+          </div>
+          <ul className="divide-y divide-border">
+            {shown?.map((p) => (
+              <li key={p.id} className={clsx('grid items-center gap-x-4 gap-y-3 px-4 py-3 transition-colors hover:bg-surface', COLS)}>
+                <button type="button" onClick={() => openEdit(p)} className={clsx('flex min-w-0 items-center gap-3 text-left', !p.active && 'opacity-60')} aria-label="Edit">
+                  <span className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-lg border border-border bg-surface-2 text-muted">
+                    {p.images[0] ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.images[0]} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Package className="h-6 w-6" />
+                    )}
+                    {p.images.length > 1 && <span className="absolute bottom-0 right-0 rounded-tl-md bg-ink/75 px-1 text-[10px] font-semibold text-white">{p.images.length}</span>}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold" title={p.name}>
+                      {p.name}
+                    </span>
+                    <span className="block truncate text-xs text-muted">
+                      {p.options && p.options.length ? p.options.map((o) => `${o.name} (${o.values.length})`).join(' · ') : p.description || '—'}
+                    </span>
+                  </span>
+                </button>
+
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 md:contents">
+                  <div>{priceCell(p)}</div>
+                  <div>{stockCell(p)}</div>
+                  <div>{statusCell(p)}</div>
+                  <div className="ml-auto md:ml-0 md:justify-self-end">{actions(p)}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        /* ---------- compact grid view ---------- */
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {shown?.map((p) => {
             const st = stockState(p);
-            const hasMin = p.minPrice != null && p.minPrice < p.price;
             return (
               <div key={p.id} className={clsx('card group flex flex-col overflow-hidden transition-shadow hover:shadow-md', !p.active && 'opacity-80')}>
-                <button
-                  type="button"
-                  className="relative block aspect-[4/3] w-full overflow-hidden bg-surface-2"
-                  onClick={() => {
-                    setError(null);
-                    setDraft(toDraft(p));
-                  }}
-                  aria-label="Edit"
-                >
+                <button type="button" className="relative block aspect-square w-full overflow-hidden bg-surface-2" onClick={() => openEdit(p)} aria-label="Edit">
                   {p.images[0] ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={p.images[0]} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-muted">
-                      <Package className="h-10 w-10" />
+                      <Package className="h-8 w-8" />
                     </div>
                   )}
                   {!p.active && (
-                    <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-black/65 px-2.5 py-1 text-[11px] font-bold text-white">
+                    <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-ink/70 px-2 py-0.5 text-[11px] font-semibold text-white">
                       <EyeOff className="h-3 w-3" /> {L('লুকানো', 'Hidden')}
                     </span>
                   )}
-                  {p.images.length > 1 && <span className="absolute right-3 top-3 rounded-full bg-black/65 px-2 py-0.5 text-[11px] font-bold text-white">{p.images.length} {L('ছবি', 'photos')}</span>}
-                  {st === 'OUT' && <span className="absolute bottom-3 left-3 rounded-full bg-danger px-2.5 py-1 text-[11px] font-bold text-white">{L('স্টক শেষ', 'Out of stock')}</span>}
-                  {st === 'LOW' && <span className="absolute bottom-3 left-3 rounded-full bg-amber-500 px-2.5 py-1 text-[11px] font-bold text-white">{L(`মাত্র ${p.stock}টি বাকি`, `Only ${p.stock} left`)}</span>}
+                  {st === 'OUT' && <span className="absolute bottom-2 left-2 rounded-md bg-danger px-2 py-0.5 text-[11px] font-semibold text-white">{L('স্টক শেষ', 'Out of stock')}</span>}
+                  {st === 'LOW' && <span className="absolute bottom-2 left-2 rounded-md bg-signal px-2 py-0.5 text-[11px] font-semibold text-white">{L(`মাত্র ${p.stock}টি বাকি`, `Only ${p.stock} left`)}</span>}
                 </button>
-
-                <div className="flex flex-1 flex-col p-4">
-                  <p className="truncate text-base font-bold" title={p.name}>
+                <div className="flex flex-1 flex-col p-3">
+                  <p className="truncate text-sm font-semibold" title={p.name}>
                     {p.name}
                   </p>
-                  <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
-                    <span className="text-xl font-extrabold tracking-tight">{money(p.price, lang)}</span>
-                    {hasMin && (
-                      <span className="text-xs text-muted">
-                        {L('সর্বনিম্ন', 'Lowest')} {money(p.minPrice as number, lang)}
-                      </span>
-                    )}
-                  </div>
+                  <div className="mt-1">{priceCell(p)}</div>
                   <p className="mt-1 text-xs text-muted">{p.trackStock ? `${L('স্টক', 'Stock')}: ${num(p.stock, lang)}` : L('স্টক হিসাব বন্ধ', 'Stock not tracked')}</p>
-
-                  {p.options && p.options.length > 0 && (
-                    <div className="mt-2.5 flex flex-wrap gap-1.5">
-                      {p.options.slice(0, 3).map((o) => (
-                        <span key={o.name} className="rounded-full bg-surface-2 px-2.5 py-0.5 text-[11px] font-medium text-muted">
-                          {o.name}: {o.values.slice(0, 4).join(', ')}
-                          {o.values.length > 4 ? '…' : ''}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3.5" style={{ marginTop: 14 }}>
-                    <label className="flex items-center gap-2 text-xs font-semibold text-muted">
-                      <Switch on={p.active} onChange={() => toggleActive(p)} disabled={busyId === p.id} />
-                      {p.active ? L('বট দেখাচ্ছে', 'Visible') : L('লুকানো', 'Hidden')}
-                    </label>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-1 border-t border-border pt-3">
+                    {statusCell(p)}
                     <div className="flex items-center">
-                      {p.code && (
-                        <>
-                          <button
-                            className="btn btn-ghost h-8 w-8 !p-0"
-                            aria-label="Copy landing page link"
-                            title={L('ল্যান্ডিং পেজের লিংক কপি করুন', 'Copy landing page link')}
-                            onClick={() => {
-                              const url = `${window.location.origin}/p/${p.code}`;
-                              navigator.clipboard.writeText(url).then(
-                                () => toast.success(L('লিংক কপি হয়েছে', 'Link copied')),
-                                () => toast.error(url),
-                              );
-                            }}
-                          >
-                            <Link2 className="h-4 w-4" />
-                          </button>
-                          <a className="btn btn-ghost h-8 w-8 !p-0" href={`/p/${p.code}`} target="_blank" rel="noopener noreferrer" aria-label="Open landing page" title={L('ল্যান্ডিং পেজ দেখুন', 'Open landing page')}>
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </>
-                      )}
-                      <button className="btn btn-ghost h-8 w-8 !p-0" onClick={() => duplicate(p)} aria-label="Duplicate" title={L('কপি করুন', 'Duplicate')}>
-                        <Copy className="h-4 w-4" />
-                      </button>
-                      <button
-                        className="btn btn-ghost h-8 w-8 !p-0"
-                        onClick={() => {
-                          setError(null);
-                          setDraft(toDraft(p));
-                        }}
-                        aria-label="Edit"
-                        title={L('এডিট', 'Edit')}
-                      >
+                      <button className={iconBtn} onClick={() => openEdit(p)} aria-label="Edit" title={L('এডিট', 'Edit')}>
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button className="btn btn-ghost h-8 w-8 !p-0 text-danger" onClick={() => remove(p)} aria-label="Delete" title={L('ডিলিট', 'Delete')}>
+                      <button className={clsx(iconBtn, 'text-danger')} onClick={() => remove(p)} aria-label="Delete" title={L('ডিলিট', 'Delete')}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -408,13 +527,19 @@ export default function ShopProducts() {
         </div>
       )}
 
+      {shown && shown.length > 0 && items && (
+        <p className="mt-3 text-xs text-muted">
+          {L(`${num(shown.length, lang)}টি দেখানো হচ্ছে, মোট ${num(items.length, lang)}টি`, `Showing ${shown.length} of ${items.length}`)}
+        </p>
+      )}
+
       {/* ====================== editor drawer ====================== */}
       {draft && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/50" onMouseDown={(e) => e.target === e.currentTarget && setDraft(null)}>
           <form onSubmit={save} className="card flex h-full w-full max-w-xl flex-col !rounded-none sm:!rounded-l-2xl">
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div>
-                <h2 className="text-lg font-extrabold">{draft.id ? L('প্রোডাক্ট এডিট', 'Edit product') : L('নতুন প্রোডাক্ট', 'New product')}</h2>
+                <h2 className="text-lg font-display font-semibold">{draft.id ? L('প্রোডাক্ট এডিট', 'Edit product') : L('নতুন প্রোডাক্ট', 'New product')}</h2>
                 <p className="text-xs text-muted">{L('ভালো ছবি ও বিবরণ দিলে বট আরও ভালো উত্তর দেয়।', 'A good photo and description help the bot answer better.')}</p>
               </div>
               <button type="button" className="btn btn-ghost h-9 w-9 !p-0" onClick={() => setDraft(null)} aria-label="Close">
@@ -496,7 +621,7 @@ export default function ShopProducts() {
                 </div>
                 <p className="text-xs text-muted">{L('বট এর নিচে কখনো দাম কমাবে না, কাস্টমার এটা দেখবে না। এটা কাজ করার জন্য “বট সেটিংস”-এ “দরদাম করতে দিন” চালু থাকতে হবে।', 'The bot never goes below this, and customers never see it. “Allow bargaining” must be on in Bot settings for this to work.')}</p>
                 {minP !== null && priceN > 0 && minP >= priceN && (
-                  <p className="flex items-start gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  <p className="flex items-start gap-1.5 rounded-lg bg-signal/10 px-3 py-2 text-xs text-signal">
                     <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                     {L('সর্বনিম্ন দাম আসল দামের কম হতে হবে, নইলে এই প্রোডাক্টে ডিসকাউন্ট দেওয়া হবে না।', 'The lowest price must be below the price, otherwise no discount will be given on this product.')}
                   </p>
