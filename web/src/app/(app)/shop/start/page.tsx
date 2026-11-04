@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, MotionConfig, motion, useReducedMotion, type Variants } from 'framer-motion';
-import { ArrowLeft, Bell, Check, Eye, EyeOff, Loader2, Lock, Mail, MessageCircle, Phone, Send, Store, User } from 'lucide-react';
+import { ArrowLeft, Bell, Check, Eye, EyeOff, Loader2, Lock, Mail, Phone, Send, Store, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
@@ -17,12 +17,30 @@ const ease: [number, number, number, number] = [0.2, 0.8, 0.2, 1];
 const stagger: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } } };
 const rise: Variants = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } } };
 
+/** FarseIT brand colors come from tailwind.config.ts: ink, brand (blue), signal (orange) */
+const inp = 'input !py-2.5 pl-10 focus:!border-brand focus:!ring-brand/20';
+const highlight = 'bg-gradient-to-r from-signal to-amber-400 bg-clip-text text-transparent';
+
+/** Same mark as the FarseIT logo: dark square + orange dot */
+function Logo({ dark = false }: { dark?: boolean }) {
+  return (
+    <>
+      <span className={`flex h-9 w-9 items-center justify-center rounded-lg ring-1 ${dark ? 'bg-white/10 ring-white/20' : 'bg-ink ring-ink'}`}>
+        <span className="h-2.5 w-2.5 rounded-full bg-signal shadow-[0_0_12px_rgba(255,106,26,0.9)]" />
+      </span>
+      <span className="text-lg font-bold tracking-tight">
+        Farse<span className={dark ? 'text-signal' : 'text-brand'}>AI</span>
+      </span>
+    </>
+  );
+}
+
 function Field({ label, icon: I, children }: { label: string; icon: Icon; children: React.ReactNode }) {
   return (
     <label className="group block">
       <span className="label">{label}</span>
       <span className="relative block">
-        <I className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted transition-colors group-focus-within:text-primary" />
+        <I className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted transition-colors group-focus-within:text-brand" />
         {children}
       </span>
     </label>
@@ -59,7 +77,13 @@ function Msg({ me, children }: { me?: boolean; children: React.ReactNode }) {
       style={{ originX: me ? 0 : 1 }}
       className={`flex ${me ? 'justify-start' : 'justify-end'}`}
     >
-      <div className={`max-w-[86%] rounded-2xl px-3 py-2 text-[12.5px] leading-relaxed ${me ? 'rounded-bl-md bg-white/10 text-white' : 'rounded-br-md bg-white text-[#1b2a57]'}`}>{children}</div>
+      <div
+        className={`max-w-[86%] rounded-2xl px-3 py-2 text-[12.5px] leading-relaxed ${
+          me ? 'rounded-bl-md bg-white/10 text-white' : 'rounded-br-md bg-brand text-white shadow-lg shadow-brand/30'
+        }`}
+      >
+        {children}
+      </div>
     </motion.div>
   );
 }
@@ -67,9 +91,9 @@ function Msg({ me, children }: { me?: boolean; children: React.ReactNode }) {
 function Typing() {
   return (
     <motion.div layout="position" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: 0.15 } }} className="flex justify-end">
-      <div className="flex items-center gap-1 rounded-2xl rounded-br-md bg-white px-3.5 py-3">
+      <div className="flex items-center gap-1 rounded-2xl rounded-br-md bg-brand px-3.5 py-3">
         {[0, 1, 2].map((i) => (
-          <span key={i} className="typing-dot h-1.5 w-1.5 rounded-full bg-[#1b2a57]/50" style={{ animationDelay: `${i * 0.15}s` }} />
+          <span key={i} className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: `${i * 0.15}s` }} />
         ))}
       </div>
     </motion.div>
@@ -110,12 +134,13 @@ function PhoneDemo({ L }: { L: (bn: string, en: string) => string }) {
 
   return (
     <div className="relative mx-auto w-full max-w-[310px]">
-      <div className="absolute -z-10 h-64 w-64 -translate-x-8 translate-y-16 rounded-full bg-accent/25 blur-3xl" />
-      <div className="rounded-[2.4rem] bg-[#0e1838] p-2 shadow-[0_40px_80px_-24px_rgba(0,0,0,0.7)] ring-1 ring-white/15">
-        <div className="overflow-hidden rounded-[1.9rem] bg-[#18244f]">
+      <div className="absolute -z-10 h-64 w-64 -translate-x-10 translate-y-16 rounded-full bg-signal/25 blur-3xl" />
+      <div className="absolute -right-10 -top-10 -z-10 h-56 w-56 rounded-full bg-brand/40 blur-3xl" />
+      <div className="rounded-[2.4rem] bg-ink p-2 shadow-[0_40px_80px_-24px_rgba(0,0,0,0.8)] ring-1 ring-white/15">
+        <div className="overflow-hidden rounded-[1.9rem] bg-ink-soft">
           <div className="mx-auto mt-2 h-1 w-14 rounded-full bg-white/15" />
           <div className="flex items-center gap-2.5 border-b border-white/10 px-4 py-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">P</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-signal text-sm font-bold text-white">P</span>
             <div className="leading-tight">
               <div className="text-[13px] font-semibold text-white">{L('আপনার পেজ', 'Your Page')}</div>
               <div className="flex items-center gap-1.5 text-[11px] text-white/60">
@@ -143,7 +168,7 @@ function PhoneDemo({ L }: { L: (bn: string, en: string) => string }) {
                     </span>
                     {L('অর্ডার কনফার্ম #1042', 'Order confirmed #1042')}
                   </div>
-                  <div className="mt-0.5 text-[11.5px] opacity-70">{L('ডেলিভারি ৳৬০ · মোট ৳১,৩১০', 'Delivery ৳60 · Total ৳1,310')}</div>
+                  <div className="mt-0.5 text-[11.5px] opacity-80">{L('ডেলিভারি ৳৬০ · মোট ৳১,৩১০', 'Delivery ৳60 · Total ৳1,310')}</div>
                 </Msg>
               )}
               {typing && <Typing key="t" />}
@@ -152,7 +177,7 @@ function PhoneDemo({ L }: { L: (bn: string, en: string) => string }) {
 
           <div className="flex items-center gap-2 px-3 pb-3">
             <div className="flex h-9 flex-1 items-center rounded-full bg-white/10 px-3.5 text-[12px] text-white/40">Aa</div>
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-accent-foreground">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-signal text-white shadow-lg shadow-signal/40">
               <Send className="h-4 w-4" />
             </span>
           </div>
@@ -166,9 +191,9 @@ function PhoneDemo({ L }: { L: (bn: string, en: string) => string }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.2 } }}
             transition={{ type: 'spring', stiffness: 320, damping: 24, delay: 0.7 }}
-            className="absolute -right-3 top-14 flex items-center gap-2.5 rounded-2xl bg-white px-3 py-2.5 text-[#1b2a57] shadow-2xl xl:-right-8"
+            className="absolute -right-3 top-14 flex items-center gap-2.5 rounded-2xl bg-white px-3 py-2.5 text-ink shadow-2xl xl:-right-8"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-signal text-white">
               <Bell className="h-4 w-4" />
             </span>
             <div className="leading-tight">
@@ -255,13 +280,23 @@ function StartForm() {
     }
   };
 
-  const headline = L('Messenger-এ অটোমেটিক বিক্রি', 'Automatic sales on Messenger');
+  const headline =
+    lang === 'bn' ? (
+      <>
+        <span className={highlight}>Messenger-এ</span> অটোমেটিক বিক্রি
+      </>
+    ) : (
+      <>
+        Automatic sales on <span className={highlight}>Messenger</span>
+      </>
+    );
   const sub = L('আপনার ফেসবুক পেজের কমেন্ট ও মেসেজে AI রিপ্লাই দিবে এবং অর্ডার নিবে। ওয়েবসাইট না থাকলেও চলবে।', 'AI replies to your Facebook Page messages and takes orders. No website needed.');
   const facts = [
     { v: n('24/7'), l: L('অটোমেটিক রিপ্লাই', 'automatic replies') },
     { v: L('অর্ডার', 'Orders'), l: L('চ্যাটেই নেওয়া হয়', 'taken right in chat') },
     { v: L('ইনবক্স', 'Inbox'), l: L('নিজে রিপ্লাই দিতে', 'to reply yourself') },
   ];
+  const perks = [L('৭ দিনের ফ্রি ট্রায়াল', '7-day free trial'), L('বাংলা ও English', 'Bangla & English'), L('এনক্রিপ্টেড টোকেন', 'Encrypted tokens')];
   const cta = done ? L('অ্যাকাউন্ট তৈরি হয়েছে', 'Account created') : busy ? L('অপেক্ষা করুন...', 'Please wait...') : reg ? L('রেজিস্টার করুন', 'Register') : L('লগইন', 'Login');
 
   return (
@@ -269,8 +304,9 @@ function StartForm() {
       <style>{`@keyframes typing-dot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}.typing-dot{animation:typing-dot 1s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.typing-dot{animation:none}}`}</style>
       <div className="grid min-h-[100dvh] bg-surface lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
         {/* ---------- Brand + live demo (desktop) ---------- */}
-        <aside className="relative isolate hidden overflow-hidden bg-[#1b2a57] text-white lg:block">
-          <div className="absolute inset-0 -z-10 opacity-70 [background-image:radial-gradient(rgba(255,255,255,0.09)_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_60%_55%,black,transparent_72%)]" />
+        <aside className="relative isolate hidden overflow-hidden bg-ink text-white lg:block">
+          <div className="absolute inset-0 -z-10 [background-image:radial-gradient(60%_50%_at_78%_18%,rgba(22,87,255,0.5),transparent_70%),radial-gradient(50%_40%_at_8%_92%,rgba(255,106,26,0.25),transparent_70%)]" />
+          <div className="absolute inset-0 -z-10 opacity-70 [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(ellipse_at_60%_50%,black,transparent_75%)]" />
           <motion.div variants={stagger} initial="hidden" animate="show" className="flex h-full min-h-[100dvh] flex-col justify-between gap-10 p-12 xl:p-16">
             <motion.div variants={rise}>
               <Link
@@ -278,16 +314,17 @@ function StartForm() {
                 aria-label={L('হোম পেজ', 'Home page')}
                 className="inline-flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-                  <MessageCircle className="h-5 w-5" />
-                </span>
-                <span className="text-lg font-bold tracking-tight">Farse AI</span>
+                <Logo dark />
               </Link>
             </motion.div>
 
             <div className="grid items-center gap-10 xl:grid-cols-[1fr_auto]">
               <motion.div variants={rise}>
-                <h1 className="max-w-md text-4xl font-extrabold leading-[1.2] tracking-tight xl:text-[2.6rem]">{headline}</h1>
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-signal" />
+                  {L('ফেসবুক পেজের জন্য AI সেলস অ্যাসিস্ট্যান্ট', 'AI sales assistant for Facebook Pages')}
+                </span>
+                <h1 className="mt-5 max-w-md text-4xl font-extrabold leading-[1.2] tracking-tight xl:text-[2.6rem]">{headline}</h1>
                 <p className="mt-4 max-w-sm text-base leading-relaxed text-white/70">{sub}</p>
               </motion.div>
               <motion.div variants={rise} className="px-2 xl:w-[310px]">
@@ -297,7 +334,7 @@ function StartForm() {
 
             <motion.dl variants={rise} className="grid max-w-md grid-cols-3 gap-4">
               {facts.map((x) => (
-                <div key={x.l} className="border-l border-white/15 pl-4">
+                <div key={x.l} className="border-l-2 border-brand pl-4">
                   <dt className="text-2xl font-bold">{x.v}</dt>
                   <dd className="mt-0.5 text-xs leading-snug text-white/60">{x.l}</dd>
                 </div>
@@ -307,17 +344,17 @@ function StartForm() {
         </aside>
 
         {/* ---------- Form ---------- */}
-        <main className="flex flex-col px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] sm:px-8">
+        <main className="relative isolate flex flex-col overflow-hidden px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] sm:px-8">
+          <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-72 w-72 rounded-full bg-brand/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 -z-10 h-72 w-72 rounded-full bg-signal/10 blur-3xl" />
+
           <div className="flex items-center justify-between">
             <Link href="/" aria-label={L('হোম পেজ', 'Home page')} className="flex items-center gap-2 lg:hidden">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <MessageCircle className="h-4 w-4" />
-              </span>
-              <span className="font-bold tracking-tight">Farse AI</span>
+              <Logo />
             </Link>
             <Link
               href="/"
-              className="hidden items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 lg:inline-flex"
+              className="hidden items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 lg:inline-flex"
             >
               <ArrowLeft className="h-4 w-4" /> {L('হোমে ফিরুন', 'Back to home')}
             </Link>
@@ -333,9 +370,11 @@ function StartForm() {
               <p className="mt-2 text-sm leading-relaxed text-muted">{sub}</p>
             </motion.div>
 
-            <motion.div variants={rise} className="card p-5 shadow-xl shadow-primary/5 sm:p-7">
+            <motion.div variants={rise} className="card relative overflow-hidden p-5 shadow-xl shadow-brand/10 sm:p-7">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand via-brand to-signal" />
+
               {user && noShop && (
-                <div className="mb-5 rounded-xl bg-accent/10 p-3 text-sm">
+                <div className="mb-5 mt-1 rounded-xl bg-signal/10 p-3 text-sm">
                   {L('আপনি লগইন করা আছেন, কিন্তু এই অ্যাকাউন্টে কোনো শপ নেই।', 'You are logged in, but this account has no shop.')}{' '}
                   <button className="font-semibold underline" onClick={logout}>
                     {L('লগআউট', 'Logout')}
@@ -343,7 +382,7 @@ function StartForm() {
                 </div>
               )}
 
-              <div role="tablist" className="grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-1 text-sm font-semibold">
+              <div role="tablist" className="mt-1 grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-1 text-sm font-semibold">
                 {(['register', 'login'] as const).map((m) => (
                   <button
                     key={m}
@@ -351,7 +390,7 @@ function StartForm() {
                     role="tab"
                     aria-selected={mode === m}
                     onClick={() => switchTo(m)}
-                    className={`relative rounded-lg py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${mode === m ? '' : 'text-muted hover:text-foreground'}`}
+                    className={`relative rounded-lg py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${mode === m ? 'text-brand' : 'text-muted hover:text-foreground'}`}
                   >
                     {mode === m && <motion.span layoutId="tab-pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} className="absolute inset-0 rounded-lg bg-background shadow-sm" />}
                     <span className="relative">{m === 'register' ? L('রেজিস্টার', 'Register') : L('লগইন', 'Login')}</span>
@@ -368,7 +407,7 @@ function StartForm() {
                 </AnimatePresence>
               </div>
 
-                            <form onSubmit={submit} className="mt-4">
+              <form onSubmit={submit} className="mt-4">
                 {error && (
                   <div role="alert" className="animate-shake mb-4 rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">
                     {error}
@@ -377,17 +416,17 @@ function StartForm() {
 
                 <Collapse show={reg} inner="grid gap-4 pb-4 sm:grid-cols-2">
                   <Field label={L('শপের নাম', 'Shop name')} icon={Store}>
-                    <input className="input !py-2.5 pl-10" required={reg} minLength={2} autoComplete="organization" value={f.shopName} onChange={set('shopName')} />
+                    <input className={inp} required={reg} minLength={2} autoComplete="organization" value={f.shopName} onChange={set('shopName')} />
                   </Field>
                   <Field label={L('আপনার নাম', 'Your name')} icon={User}>
-                    <input className="input !py-2.5 pl-10" required={reg} minLength={2} autoComplete="name" value={f.name} onChange={set('name')} />
+                    <input className={inp} required={reg} minLength={2} autoComplete="name" value={f.name} onChange={set('name')} />
                   </Field>
                 </Collapse>
 
                 <div className={`grid gap-4 pb-4 ${reg ? 'sm:grid-cols-2' : ''}`}>
                   <Field label={reg ? L('মোবাইল নম্বর', 'Mobile number') : L('মোবাইল নম্বর বা ইমেইল', 'Mobile or email')} icon={Phone}>
                     <input
-                      className="input !py-2.5 pl-10"
+                      className={inp}
                       required
                       inputMode={reg ? 'tel' : 'text'}
                       autoComplete={reg ? 'tel' : 'username'}
@@ -398,14 +437,14 @@ function StartForm() {
                   </Field>
                   {reg && (
                     <Field label={L('ইমেইল (ঐচ্ছিক)', 'Email (optional)')} icon={Mail}>
-                      <input className="input !py-2.5 pl-10" type="email" autoComplete="email" value={f.email} onChange={set('email')} />
+                      <input className={inp} type="email" autoComplete="email" value={f.email} onChange={set('email')} />
                     </Field>
                   )}
                 </div>
 
                 <Field label={L('পাসওয়ার্ড', 'Password')} icon={Lock}>
                   <input
-                    className="input !py-2.5 pl-10 pr-11"
+                    className={`${inp} pr-11`}
                     type={show ? 'text' : 'password'}
                     required
                     minLength={6}
@@ -417,13 +456,18 @@ function StartForm() {
                     type="button"
                     onClick={() => setShow((v) => !v)}
                     aria-label={show ? L('পাসওয়ার্ড লুকান', 'Hide password') : L('পাসওয়ার্ড দেখান', 'Show password')}
-                    className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                    className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                   >
                     {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </Field>
 
-                <button className={`btn mt-5 w-full !py-2.5 text-[15px] ${done ? 'bg-success text-white' : 'btn-primary'}`} disabled={busy || done}>
+                <button
+                  className={`btn mt-5 w-full !py-3 text-[15px] focus-visible:!ring-brand/40 ${
+                    done ? 'bg-success text-white' : 'bg-brand text-white shadow-lg shadow-brand/30 hover:bg-brand/90 hover:shadow-brand/40'
+                  }`}
+                  disabled={busy || done}
+                >
                   <AnimatePresence mode="wait" initial={false}>
                     <motion.span key={cta} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.16 }} className="flex items-center gap-2">
                       {busy && !done && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -437,11 +481,22 @@ function StartForm() {
               {reg && <p className="mt-4 text-center text-xs leading-relaxed text-muted">{L('নতুন অ্যাকাউন্টে নিজে থেকেই ফ্রি ট্রায়াল চালু হয়, ড্যাশবোর্ডে দেখতে পাবেন।', 'New accounts get a free trial automatically. You can see it in your dashboard.')}</p>}
               <p className="mt-4 border-t border-border pt-3 text-center text-sm text-muted">
                 {reg ? L('আগে থেকেই অ্যাকাউন্ট আছে?', 'Already have an account?') : L('নতুন এসেছেন?', 'New here?')}{' '}
-                <button type="button" onClick={() => switchTo(reg ? 'login' : 'register')} className="font-semibold text-primary hover:underline">
+                <button type="button" onClick={() => switchTo(reg ? 'login' : 'register')} className="font-semibold text-brand hover:underline">
                   {reg ? L('লগইন করুন', 'Log in') : L('রেজিস্টার করুন', 'Register')}
                 </button>
               </p>
             </motion.div>
+
+            <motion.ul variants={rise} className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted">
+              {perks.map((p) => (
+                <li key={p} className="flex items-center gap-1.5">
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-signal/15 text-signal">
+                    <Check className="h-2.5 w-2.5" strokeWidth={3.5} />
+                  </span>
+                  {p}
+                </li>
+              ))}
+            </motion.ul>
           </motion.div>
         </main>
       </div>
