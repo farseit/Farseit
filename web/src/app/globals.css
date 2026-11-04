@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================================
+   FARSE AI THEME TOKENS  —  change brand colors ONLY here.
+   Values are "R G B" triplets so Tailwind opacity modifiers work
+   (e.g. bg-primary/10). Everything in the app reads these variables.
+   ===================================================================== */
+:root {
+  --background: 255 255 255; /* white */
+  --foreground: 53 59 72; /* #353b48 */
+  --surface: 247 248 251;
+  --surface-2: 238 241 247;
+  --border: 226 230 238;
+  --muted: 100 108 126;
+
+  --primary: 39 60 117; /* #273c75 */
+  --primary-foreground: 255 255 255;
+  --primary-soft: 232 236 247;
+
+  --accent: 232 168 56; /* warm gold */
+  --accent-foreground: 39 60 117;
+
+  --success: 22 163 74;
+  --danger: 220 38 38;
+  --warning: 217 119 6;
+}
+
+.dark {
+  --background: 15 18 28;
+  --foreground: 232 235 242;
+  --surface: 24 28 42;
+  --surface-2: 33 38 56;
+  --border: 48 54 76;
+  --muted: 148 156 176;
+
+  --primary: 82 112 212; /* lighter tint of #273c75 for dark backgrounds */
+  --primary-foreground: 255 255 255;
+  --primary-soft: 30 40 74;
+
+  --accent: 240 183 77;
+  --accent-foreground: 15 18 28;
+
+  --success: 74 222 128;
+  --danger: 248 113 113;
+  --warning: 251 191 36;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  * {
+    @apply border-border;
+  }
+  ::selection {
+    @apply bg-primary/20;
+  }
+}
+
+@layer components {
+  .container-page {
+        @apply mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-primary text-primary-foreground shadow-sm hover:bg-primary/90;
+  }
+  .btn-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent/90;
+  }
+  .btn-outline {
+    @apply border border-border bg-background hover:bg-surface-2;
+  }
+  .btn-ghost {
+    @apply hover:bg-surface-2;
+  }
+  .btn-danger {
+    @apply bg-danger text-white hover:bg-danger/90;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+  .input {
+    @apply w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm placeholder:text-muted/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium;
+  }
+  .card {
+    @apply rounded-2xl border border-border bg-background shadow-card;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .section-title {
+    @apply text-xl font-bold tracking-tight sm:text-2xl;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+}
+/* login/register error banner */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .animate-shake { animation: shake 0.4s ease-in-out; }
+}
+
+
+/* "Buy now" button-er upor diye halka alo ghure jay */
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-120%) skewX(-20deg); }
+  60%, 100% { transform: translateX(260%) skewX(-20deg); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn-shimmer { position: relative; overflow: hidden; }
+  .btn-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: translateX(-120%) skewX(-20deg);
+    animation: shimmer-sweep 3.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+/* Dark mode circular reveal (View Transitions API) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2147483646;
+}
+
+/* =====================================================================
+   FarseIT company site (route group "(site)") — classes are prefixed f-
+   so they never clash with the SaaS panel styles above.
+   ===================================================================== */
+.farse-site ::selection {
+  @apply bg-signal/20 text-ink;
+}
+@layer components {
+  .container-x {
+    @apply mx-auto max-w-content px-6 md:px-10;
+  }
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-brand;
+  }
+  .f-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-ink px-6 py-3 text-sm font-semibold text-paper transition-colors hover:bg-brand;
+  }
+  .f-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line bg-paper px-6 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink;
+  }
+  .f-btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-signal px-6 py-3 text-sm font-semibold text-paper transition-colors hover:bg-signal/90;
+  }
+  .f-card {
+    @apply rounded-xl border border-line bg-paper p-8 transition-shadow hover:shadow-[0_20px_45px_-25px_rgba(11,14,20,0.25)];
+  }
+  .section-pad {
+    @apply py-20 md:py-28;
+  }
+  .farse-site a:focus-visible,
+  .farse-site button:focus-visible,
+  .farse-site input:focus-visible,
+  .farse-site textarea:focus-visible {
+    outline: 2px solid #1657ff;
+    outline-offset: 3px;
+  }
+}

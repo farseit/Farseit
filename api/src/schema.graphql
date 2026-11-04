@@ -1,0 +1,45 @@
+scalar JSON
+scalar DateTime
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  AGENT
+}
+
+type User {
+  avatar: String
+  id: ID!
+  name: String!
+  email: String
+  phone: String!
+  role: Role!
+  createdAt: DateTime!
+}
+type AuthPayload {
+  accessToken: String!
+  user: User!
+}
+input RegisterInput {
+  name: String!
+  phone: String!
+  email: String
+  password: String!
+}
+
+type Query {
+  me: User
+  pushPublicKey: String!
+}
+
+type Mutation {
+  register(input: RegisterInput!): AuthPayload!
+  login(identifier: String!, password: String!): AuthPayload!
+  requestPasswordReset(phone: String!): Boolean!
+  resetPassword(phone: String!, code: String!, newPassword: String!): Boolean!
+  updateProfile(name: String!, email: String): User!
+  updateAvatar(avatar: String): User!
+  changePassword(currentPassword: String!, newPassword: String!): Boolean!
+  savePushSubscription(endpoint: String!, p256dh: String!, auth: String!): Boolean!
+  removePushSubscription(endpoint: String!): Boolean!
+}

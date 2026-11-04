@@ -1,0 +1,294 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER // normal user (shop owner)
+  ADMIN // platform super admin
+  AGENT
+}
+
+model User {
+  id              String       @id @default(cuid())
+  name            String
+  email           String?      @unique
+  phone           String       @unique
+  password        String
+  role            Role         @default(CUSTOMER) // ADMIN = platform super admin
+  isActive        Boolean      @default(true)
+  avatar          String?
+  shopMemberships ShopMember[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model WebhookEvent {
+  id        String   @id // Facebook message id (mid): Meta retry korle duplicate dhora jay
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model RateLimit {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String?
+  createdAt DateTime @default(now())
+}
+
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  codeHash  String
+  attempts  Int       @default(0)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+enum ShopStatus {
+  TRIAL
+  ACTIVE
+  SUSPENDED
+}
+
+enum ShopRole {
+  OWNER
+  AGENT
+}
+
+model Shop {
+  id          String       @id @default(cuid())
+  name        String
+  status      ShopStatus   @default(TRIAL)
+  plan        String       @default("TRIAL")
+  trialEndsAt DateTime?
+  botEnabled  Boolean      @default(false)
+  approved    Boolean      @default(false)
+  members     ShopMember[]
+  pages       ShopPage[]
+  chats       ShopChat[]
+  products    ShopProduct[]
+  orders      ShopOrder[]
+  issues       ShopIssue[]
+  botSettings ShopBotSettings?
+  orderSeq    Int          @default(0)
+  planEndsAt   DateTime?
+  usagePeriod  String?
+  usageReplies Int          @default(0)
+  payments     ShopPayment[]
+  aiKey        ShopAiKey?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model ShopMember {
+  id        String   @id @default(cuid())
+  shopId    String
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ShopRole @default(OWNER)
+  createdAt DateTime @default(now())
+
+  @@unique([shopId, userId])
+  @@index([userId])
+}
+
+model ShopPage {
+  id        String   @id @default(cuid())
+  shopId    String
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  pageId    String   @unique // Facebook Page id (webhook-e entry.id)
+  name      String?
+  tokenEnc  String   @db.Text // AES-256-GCM encrypted Page access token
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([shopId])
+}
+
+model ShopChat {
+  id            String        @id @default(cuid())
+  shopId        String
+  shop          Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  pageId        String
+  psid          String
+  name          String?
+  aiEnabled     Boolean       @default(true)
+  handoffUntil  DateTime?
+  unread        Int           @default(0)
+  lastText      String?
+  lastFrom      String? // CUSTOMER | BOT | ADMIN
+  lastMessageAt DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  messages      ShopMessage[]
+
+  @@unique([pageId, psid])
+  @@index([shopId, lastMessageAt])
+}
+
+model ShopMessage {
+  id        String   @id @default(cuid())
+  chatId    String
+  chat      ShopChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  role      String // USER | BOT | ADMIN
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([chatId, createdAt])
+}
+
+enum ShopOrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model ShopProduct {
+  id          String   @id @default(cuid())
+  shopId      String
+  shop        Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  name        String
+  description String?  @db.Text
+  price       Int // taka
+  minPrice    Int? // bargain-e er nichey jabe na
+  stock       Int      @default(0)
+  trackStock  Boolean  @default(true)
+  images      String[]
+  options     Json? // [{ "name": "Size", "values": ["M","L"] }]
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+    code        String?  @unique // landing page link: /p/{code}
+  @@index([shopId, active])
+}
+
+model ShopBotSettings {
+  shopId          String   @id
+  shop            Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  botName         String   @default("Assistant")
+  tone            String   @default("FRIENDLY") // FRIENDLY | FORMAL
+  greeting        String?  @db.Text
+  insideArea      String   @default("ঢাকা সিটির ভিতরে") // INSIDE zone mane kon elaka
+  deliveryInside  Int      @default(60)
+  deliveryOutside Int      @default(120)
+  bargainEnabled  Boolean  @default(false)
+  rules           String?  @db.Text // shop-er nijer extra nirdesh
+  updatedAt       DateTime @updatedAt
+}
+
+model ShopOrder {
+  id             String          @id @default(cuid())
+  shopId         String
+  shop           Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  number         Int // shop-er nijer serial (#1, #2 ...)
+  chatId         String?
+  customerName   String
+  phone          String
+  address        String
+  zone           String          @default("INSIDE") // INSIDE | OUTSIDE
+  note           String?
+  subtotal       Int
+  deliveryCharge Int
+  total          Int
+  status         ShopOrderStatus @default(PENDING)
+  source         String          @default("MESSENGER")
+  items          ShopOrderItem[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([shopId, number])
+  @@index([shopId, createdAt])
+  @@index([shopId, status])
+}
+
+model ShopOrderItem {
+  id        String    @id @default(cuid())
+  orderId   String
+  order     ShopOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  name      String
+  option    String?
+  price     Int
+  qty       Int
+
+  @@index([orderId])
+}
+
+model ShopAiUsage {
+  id        String   @id @default(cuid())
+  shopId    String
+  provider  String
+  inTokens  Int      @default(0)
+  outTokens Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([shopId, createdAt])
+}
+
+model ShopPayment {
+  id           String    @id @default(cuid())
+  shopId       String
+  shop         Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  plan         String // STARTER | PRO | BUSINESS
+  months       Int
+  amount       Int
+  method       String // BKASH | NAGAD
+  senderNumber String
+  trxId        String    @unique
+  status       String    @default("PENDING") // PENDING | APPROVED | REJECTED
+  note         String?
+  createdAt    DateTime  @default(now())
+  reviewedAt   DateTime?
+
+  @@index([status, createdAt])
+  @@index([shopId])
+}
+model ShopAiKey {
+  shopId    String   @id
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  keyEnc    String // AES-256-GCM, kokhono frontend-e jay na
+  last4     String
+  status    String   @default("OK") // OK | INVALID | QUOTA
+  lastError String?
+  checkedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model ShopIssue {
+  id         String    @id @default(cuid())
+  shopId     String
+  shop       Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  code       String // FB_TOKEN_EXPIRED, FB_SEND_FAILED, CONNECT_FAILED, AI_ERROR ...
+  subject    String    @default("") // jemon pageId, jeno ek code-er alada jinis alada thake
+  severity   String    @default("WARN") // ERROR | WARN
+  message    String    @db.Text
+  detail     String?   @db.Text // Facebook/AI-er asol error
+  count      Int       @default(1)
+  firstAt    DateTime  @default(now())
+  lastAt     DateTime  @default(now())
+  resolvedAt DateTime?
+
+  @@unique([shopId, code, subject])
+  @@index([shopId, lastAt])
+}

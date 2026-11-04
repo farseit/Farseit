@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# env files (secret, kokhono commit korbe na)
+.env
+.env.*
+!.env.example
+
+# uploads (local-e save kora image)
+api/uploads/*
+!api/uploads/.gitkeep
+
+# logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# misc
+.vercel
+coverage/

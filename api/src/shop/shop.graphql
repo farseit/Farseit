@@ -1,0 +1,40 @@
+extend type Query {
+  myShop: JSON
+  shopFbPages(userToken: String!): JSON!
+  shopProducts: JSON!
+  shopBotSettings: JSON!
+  shopAiKey: JSON!
+  shopOrders(status: String, take: Int, skip: Int): JSON!
+  shopChats(unreadOnly: Boolean, take: Int, skip: Int): JSON!
+  shopChat(id: String!): JSON!
+  shopBilling: JSON!
+  saasOverview: JSON!
+  saasShops(search: String, take: Int, skip: Int, filter: String): JSON!
+  saasShop(id: String!): JSON!
+  saasPayments(status: String): JSON!
+   shopHealth(live: Boolean): JSON!
+     shopLanding(code: String!): JSON
+}
+
+extend type Mutation {
+  shopRegister(input: JSON!): JSON!
+  shopConnectPage(pageId: String!, userToken: String!): JSON!
+  shopDisconnectPage(pageId: String!): Boolean!
+  shopSaveProduct(input: JSON!): JSON!
+  shopDeleteProduct(id: String!): Boolean!
+  shopSaveBotSettings(input: JSON!): JSON!
+  shopSaveAiKey(key: String!): JSON!
+  shopTestAiKey: JSON!
+  shopRemoveAiKey: Boolean!
+  shopSetOrderStatus(id: String!, status: String!): JSON!
+  shopReply(chatId: String!, text: String!): JSON!
+  shopSetChatBot(chatId: String!, on: Boolean!): Boolean!
+  shopSetBotEnabled(enabled: Boolean!): Boolean!
+  shopSubmitPayment(input: JSON!): JSON!
+  saasApprovePayment(id: String!): Boolean!
+  saasRejectPayment(id: String!, note: String): Boolean!
+  saasSetShop(id: String!, input: JSON!): JSON!
+    shopRepairPage(pageId: String!): Boolean!
+  shopDismissIssue(id: String!): Boolean!
+    shopLandingOrder(code: String!, input: JSON!): JSON!
+}
